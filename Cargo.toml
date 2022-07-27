@@ -1,0 +1,27 @@
+[package]
+name = "AleoProver"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+snarkvm = { git = "https://github.com/AleoHQ/snarkVM.git", rev = "48c59e9" }
+snarkos = { git = "https://github.com/AleoHQ/snarkOS.git", rev = "504f077" }
+
+clap = { version = "3.2.4", features = [ "derive" ] }
+tracing = { version = "0.1.35"  }
+tracing-subscriber = { version = "0.3.15" }
+
+tokio = { version = "^1.19.2", features = ["full"] }
+tokio-util = { version = "0.7.3" } 
+futures = { version = "0.3.21" }
+
+futures-util = "0.3.21" 
+# tokio-stream = { version = "0.1.9" }
+
+
+rayon = { version = "1.5.3" }
+
+anyhow = { version="1.0.58" }
+rand = { version = "0.8.5" }
