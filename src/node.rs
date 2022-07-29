@@ -160,7 +160,9 @@ impl Node {
                             //     }
                             // }
                             Message::Pong(..) => {
-                                let register = Message::<Testnet2, Prover<Testnet2>>::PoolRegister(node.address);
+                                let register = Message::<Testnet2, Prover<Testnet2>>::PoolRegister(
+                                    node.address,
+                                );
                                 if let Err(e) = framed.send(register).await {
                                     error!("Error sending pool register: {:?}", e);
                                 } else {
@@ -170,7 +172,10 @@ impl Node {
                             Message::PoolRequest(share_difficulty, block_template) => {
                                 if let Ok(block_template) = block_template.deserialize().await {
                                     warn!(share_difficulty);
-                                    if let Err(e) = prover_router.send(ProverWork::new(share_difficulty, block_template)).await {
+                                    if let Err(e) = prover_router
+                                        .send(ProverWork::new(share_difficulty, block_template))
+                                        .await
+                                    {
                                         error!("Error sending work to prover: {:?}", e);
                                     } else {
                                         debug!("Sent work to prover");

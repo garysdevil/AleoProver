@@ -1,24 +1,22 @@
-
+use snarkos::{Data, Message};
 use snarkvm::dpc::testnet2::Testnet2;
 use snarkvm::dpc::{Address, BlockHeader, BlockTemplate};
-use snarkos::{Data, Message};
 
 use std::sync::Arc;
 // use std::sync::mpsc::{Sender, Receiver};
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use anyhow::Result;
+use futures::executor::block_on;
+use rand::thread_rng;
+use rayon::{ThreadPool, ThreadPoolBuilder};
 use tokio::sync::RwLock;
 use tokio::sync::{mpsc, Mutex};
-use rayon::{ThreadPool, ThreadPoolBuilder};
-use anyhow::Result;
-use tracing::{debug, error, info};
 use tokio::task;
-use rand::thread_rng;
-use futures::executor::block_on;
+use tracing::{debug, error, info};
 
 use crate::Node;
 // use crate::node::SendMessage;
-
 
 #[derive(Debug)]
 pub struct ProverWork {
@@ -34,7 +32,6 @@ impl ProverWork {
     }
 }
 
-
 pub struct Prover {
     address: Address<Testnet2>,
     thread_pool: Arc<ThreadPool>,
@@ -46,14 +43,11 @@ pub struct Prover {
 }
 
 impl Prover {
-    pub async fn init(
-        address: Address<Testnet2>,
-        node: Arc<Node>,
-    ) -> Result<Arc<Self>> {
+    pub async fn init(address: Address<Testnet2>, node: Arc<Node>) -> Result<Arc<Self>> {
         let pool = ThreadPoolBuilder::new()
-                .stack_size(8 * 1024 * 1024)
-                .num_threads(32 as usize)
-                .build()?;
+            .stack_size(8 * 1024 * 1024)
+            .num_threads(32 as usize)
+            .build()?;
 
         let terminator = Arc::new(AtomicBool::new(false));
         let (router_tx, mut router_rx) = mpsc::channel(1024);
@@ -102,7 +96,8 @@ impl Prover {
         let thread_pool = self.thread_pool.clone();
         let total_proofs = self.total_proofs.clone();
 
-        thread_pool.spawn( move || { // 并行挖矿
+        thread_pool.spawn(move || {
+            // 并行挖矿
             info!("======");
             while !terminator.load(Ordering::SeqCst) {
                 let result_mining = BlockHeader::mine_once_unchecked(
@@ -110,9 +105,9 @@ impl Prover {
                     &terminator,
                     &mut thread_rng(),
                 );
-                if let Err(e) = result_mining{
+                if let Err(e) = result_mining {
                     error!("result_mining error: {}", e);
-                   continue;
+                    continue;
                 };
                 let block_header = result_mining.unwrap();
 
@@ -132,13 +127,14 @@ impl Prover {
 
                 // Send a `PoolResponse` to the operator.
                 let message = Message::PoolResponse(address, nonce, Data::Object(proof));
-                if let Err(error) = block_on(node.router().send(crate::node::SendMessage { message })){
+                if let Err(error) =
+                    block_on(node.router().send(crate::node::SendMessage { message }))
+                {
                     error!("Failed to send PoolResponse: {}", error);
-                }else{
+                } else {
                     info!("Sent PoolResponse");
                 }
             }
-
         });
     }
 }

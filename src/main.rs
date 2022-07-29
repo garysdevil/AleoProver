@@ -32,8 +32,6 @@ pub async fn main() {
     println!("Hello, world!");
     let cli = Cli::parse();
 
-
-
     let subscriber_builder = tracing_subscriber::fmt()
         // Use a more compact, abbreviated log format
         .compact()
@@ -46,18 +44,16 @@ pub async fn main() {
         // Don't display the event's target (module path)
         .with_target(false);
 
-    let subscriber_builder = match cli.verbosity{
+    let subscriber_builder = match cli.verbosity {
         0 => subscriber_builder.with_max_level(tracing::Level::ERROR),
         1 => subscriber_builder.with_max_level(tracing::Level::WARN),
         2 => subscriber_builder.with_max_level(tracing::Level::INFO),
         3 => subscriber_builder.with_max_level(tracing::Level::DEBUG),
         4 => subscriber_builder.with_max_level(tracing::Level::TRACE),
-        _ => subscriber_builder.with_max_level(tracing::Level::INFO)
+        _ => subscriber_builder.with_max_level(tracing::Level::INFO),
     };
     let subscriber = subscriber_builder.finish();
     tracing::subscriber::set_global_default(subscriber).unwrap();
-
-    
 
     println!("address: {:?}", cli.address);
 
