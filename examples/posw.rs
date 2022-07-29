@@ -27,15 +27,20 @@ fn main() {
             .unwrap(),
     );
 
+    for i in 0..10 {
+        let start = Instant::now();
+        Testnet2::posw()
+            .mine(&block_template, &AtomicBool::new(false), rng)
+            .unwrap();
+        let duration = start.elapsed();
+        println!("Time elapsed in expensive_function() is: {:?}", duration);
+    }
 
-    let start = Instant::now();
-    println!("生成一个符合难度的证明");
-    Testnet2::posw()
-        .mine(&block_template, &AtomicBool::new(false), rng)
-        .unwrap();
-    let duration = start.elapsed();
-    println!("Time elapsed in expensive_function() is: {:?}", duration);
-
-    println!("验证一个证明");
-    let _is_valid = Testnet2::posw().verify_from_block_header(Testnet2::genesis_block().header());
+    // let _is_valid = Testnet2::posw().verify_from_block_header(Testnet2::genesis_block().header());
 }
+
+
+
+
+// println!("生成一个符合难度的证明");
+// println!("验证一个证明");
