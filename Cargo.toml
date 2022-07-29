@@ -26,3 +26,7 @@ rayon = { version = "1.5.3" }
 
 anyhow = { version="1.0.58" }
 rand = { version = "0.8.5" }
+
+
+[dev-dependencies.rand_chacha]
+version = "0.3"

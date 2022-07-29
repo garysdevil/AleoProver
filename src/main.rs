@@ -20,15 +20,21 @@ struct Cli {
         long
     )]
     address: Address<Testnet2>,
-    #[clap(default_value = "117.148.141.247:4135", long)]
+    #[clap(default_value = "127.0.0.1:4135", long)]
     pool: SocketAddr,
+    /// Specify the verbosity of the node [options: 0, 1, 2, 3, 4]
+    #[clap(default_value = "2", long, action)]
+    pub verbosity: u8,
 }
 
 #[tokio::main]
 pub async fn main() {
     println!("Hello, world!");
+    let cli = Cli::parse();
 
-    let subscriber = tracing_subscriber::fmt()
+
+
+    let subscriber_builder = tracing_subscriber::fmt()
         // Use a more compact, abbreviated log format
         .compact()
         // Display source code file paths
@@ -38,14 +44,20 @@ pub async fn main() {
         // Display the thread ID an event was recorded on
         .with_thread_ids(true)
         // Don't display the event's target (module path)
-        .with_target(false)
-        // 设置输出的日志等级
-        .with_max_level(tracing::Level::INFO)
-        // Build the subscriber
-        .finish();
+        .with_target(false);
+
+    let subscriber_builder = match cli.verbosity{
+        0 => subscriber_builder.with_max_level(tracing::Level::ERROR),
+        1 => subscriber_builder.with_max_level(tracing::Level::WARN),
+        2 => subscriber_builder.with_max_level(tracing::Level::INFO),
+        3 => subscriber_builder.with_max_level(tracing::Level::DEBUG),
+        4 => subscriber_builder.with_max_level(tracing::Level::TRACE),
+        _ => subscriber_builder.with_max_level(tracing::Level::INFO)
+    };
+    let subscriber = subscriber_builder.finish();
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
-    let cli = Cli::parse();
+    
 
     println!("address: {:?}", cli.address);
 
@@ -59,7 +71,8 @@ pub async fn main() {
         }
     };
 
-    Node::start(node);
+    // node收到挖矿块高模版则将其发送给prover任务进行挖矿
+    Node::start(prover.router(), node);
 
     std::future::pending::<()>().await;
 }
