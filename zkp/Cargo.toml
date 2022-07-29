@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-snarkvm = { git = "https://github.com/AleoHQ/snarkVM.git", rev = "3887cbbe7" }
+snarkvm = { git = "https://github.com/AleoHQ/snarkVM.git", rev = "0ba1ece69" }
 rand = { version = "0.8.5" }
 
 

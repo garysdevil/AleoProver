@@ -33,7 +33,7 @@ fn main() {
             .mine(&block_template, &AtomicBool::new(false), rng)
             .unwrap();
         let duration = start.elapsed();
-        println!("Time elapsed in expensive_function() is: {:?}", duration);
+        println!("{}. Time elapsed in generating a valid proof() is: {:?}", i, duration);
     }
 
     // let _is_valid = Testnet2::posw().verify_from_block_header(Testnet2::genesis_block().header());
