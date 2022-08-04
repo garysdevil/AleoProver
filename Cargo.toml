@@ -49,5 +49,5 @@ rand = {version = "0.8.5"}
 version = "0.3"
 
 
-# [dev-dependencies]
-# rusty-hook = "0.11.2"
+[dev-dependencies]
+rusty-hook = "0.11.2"
