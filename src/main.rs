@@ -67,7 +67,7 @@ pub async fn main() {
         }
     };
 
-    // node收到挖矿块高模版则将其发送给prover任务进行挖矿 ##
+    // node收到挖矿块高模版则将其发送给prover任务进行挖矿
     Node::start(prover.router(), node);
 
     std::future::pending::<()>().await;
