@@ -10,6 +10,10 @@ rand = { version = "0.8.5" }
 
 [dependencies.snarkvm]
 git = "https://github.com/AleoHQ/snarkVM.git"
+# rev = "3887cbbe7" # testnet2
+# rev = "b258685f1" # 7月第一次提交的代码
+# rev = "ac87a9443" # 7月最后一次提交的代码
+# rev = "28ffdb6c4" # 8月第一次提交的代码
 rev = "0ba1ece69"
 
 [dev-dependencies.rand_chacha]

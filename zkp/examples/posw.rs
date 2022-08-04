@@ -9,7 +9,7 @@ use rand_chacha::ChaChaRng;
 fn main() {
     let rng = &mut ChaChaRng::seed_from_u64(1234567);
     // let difficulty_target: u64 = 18446744073709551615; // block.difficulty_target()
-    let difficulty_target: u64 = 1844674407370955161;
+    let difficulty_target: u64 = 18446744073709551615;
 
     // Construct the block template.
     let block = Testnet2::genesis_block();
