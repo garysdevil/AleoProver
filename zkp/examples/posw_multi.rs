@@ -12,8 +12,9 @@ use tokio::task;
 
 #[tokio::main]
 async fn main() {
-    mine().await;
-    // mine().await;
+    for _ in 0..100 {
+        mine().await;
+    }
 }
 
 async fn mine() {
