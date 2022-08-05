@@ -38,7 +38,7 @@ async fn mine() {
 }
 
 fn get_template() -> BlockTemplate<Testnet2> {
-    let difficulty_target: u64 = 18446744073709551615;
+    let difficulty_target: u64 = 18446744073709551615; // block.difficulty_target()
     println!("Difficulty_target is: {:?}", difficulty_target);
 
     // Construct the block template.

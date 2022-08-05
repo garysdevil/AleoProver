@@ -8,17 +8,17 @@ use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 
 use rayon::{ThreadPool, ThreadPoolBuilder};
+use tokio::task;
 
 mod utils;
 
-fn main() {
-    utils::time_spend(|| -> () {
-        let thread_pools = get_thread_pools();
-        for _ in 0..100 {
-            let thread_pools = thread_pools.clone();
-            mine(thread_pools);
-        }
-    });
+#[tokio::main]
+async fn main() {
+    let thread_pools = get_thread_pools();
+    for _ in 0..100 {
+        let thread_pools = thread_pools.clone();
+        mine(thread_pools).await;
+    }
 }
 
 fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
@@ -35,31 +35,29 @@ fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
     thread_pools
 }
 
-fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
+async fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
+    let mut joins = Vec::new();
     let block_template = get_template();
     for tp in thread_pools.iter() {
         let tp = tp.clone();
         let block_template = block_template.clone();
-        tp.install(|| {
-            let rng = &mut ChaChaRng::seed_from_u64(1234567);
-            let start = Instant::now();
-            Testnet2::posw()
-                .mine(&block_template, &AtomicBool::new(false), rng)
-                .unwrap();
-            let duration = start.elapsed();
-            println!(
-                "{}. Time elapsed in generating a valid proof() is: {:?}",
-                "-", duration
-            );
-            time_spend(|| -> () {
-                let thread_pools = get_thread_pools();
-                for _ in 0..100 {
-                    let thread_pools = thread_pools.clone();
-                    mine(thread_pools);
-                }
-            });
-        });
+        // joins.push(task::spawn(async move {
+        joins.push(task::spawn_blocking(move || {
+            tp.install(|| {
+                let rng = &mut ChaChaRng::seed_from_u64(1234567);
+                let start = Instant::now();
+                Testnet2::posw()
+                    .mine(&block_template, &AtomicBool::new(false), rng)
+                    .unwrap();
+                let duration = start.elapsed();
+                println!(
+                    "{}. Time elapsed in generating a valid proof() is: {:?}",
+                    "-", duration
+                );
+            })
+        }));
     }
+    futures::future::join_all(joins).await;
 }
 
 fn get_template() -> BlockTemplate<Testnet2> {
