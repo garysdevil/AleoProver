@@ -14,7 +14,7 @@ mod utils;
 fn main() {
     utils::time_spend(|| -> () {
         let thread_pools = get_thread_pools();
-        for _ in 0..100 {
+        for _ in 0..10 {
             let thread_pools = thread_pools.clone();
             mine(thread_pools);
         }
@@ -51,13 +51,6 @@ fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
                 "{}. Time elapsed in generating a valid proof() is: {:?}",
                 "-", duration
             );
-            time_spend(|| -> () {
-                let thread_pools = get_thread_pools();
-                for _ in 0..100 {
-                    let thread_pools = thread_pools.clone();
-                    mine(thread_pools);
-                }
-            });
         });
     }
 }

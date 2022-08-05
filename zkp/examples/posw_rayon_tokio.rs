@@ -15,10 +15,13 @@ mod utils;
 #[tokio::main]
 async fn main() {
     let thread_pools = get_thread_pools();
-    for _ in 0..100 {
+    let start = std::time::Instant::now();
+    for _ in 0..10 {
         let thread_pools = thread_pools.clone();
         mine(thread_pools).await;
     }
+    let duration = start.elapsed();
+    println!("{}. Total time elapsed  {:?}", "-", duration);
 }
 
 fn get_thread_pools() -> Vec<Arc<ThreadPool>> {

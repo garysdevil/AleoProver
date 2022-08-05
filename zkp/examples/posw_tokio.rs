@@ -10,15 +10,18 @@ use tokio::task;
 
 #[tokio::main]
 async fn main() {
-    for _ in 0..100 {
+    let start = std::time::Instant::now();
+    for _ in 0..10 {
         mine().await;
     }
+    let duration = start.elapsed();
+    println!("{}. Total time elapsed  {:?}", "-", duration);
 }
 
 async fn mine() {
     let block_template = get_template();
     let mut joins = Vec::new();
-    for _ in 0..10 {
+    for i in 0..10 {
         let block_template = block_template.clone();
         let blocking_task = task::spawn_blocking(move || {
             let rng = &mut ChaChaRng::seed_from_u64(1234567);
@@ -29,7 +32,7 @@ async fn mine() {
             let duration = start.elapsed();
             println!(
                 "{}. Time elapsed in generating a valid proof() is: {:?}",
-                "-", duration
+                i, duration
             );
         });
         joins.push(blocking_task);
