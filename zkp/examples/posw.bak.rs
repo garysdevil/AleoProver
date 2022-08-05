@@ -7,31 +7,10 @@ use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 
 fn main() {
-    for _ in 0..100 {
-        mine();
-    }
-}
-
-fn mine() {
     let rng = &mut ChaChaRng::seed_from_u64(1234567);
-    let block_template = get_template();
-
-    let start = Instant::now();
-    Testnet2::posw()
-        .mine(&block_template, &AtomicBool::new(false), rng)
-        .unwrap();
-    let duration = start.elapsed();
-    println!(
-        "{}. Time elapsed in generating a valid proof() is: {:?}",
-        "=", duration
-    );
-}
-
-fn get_template() -> BlockTemplate<Testnet2> {
     // let difficulty_target: u64 = 18446744073709551615; // block.difficulty_target()
     let difficulty_target: u64 = 18446744073709551615;
 
-    println!("Difficulty_target is: {:?}", difficulty_target);
     // Construct the block template.
     let block = Testnet2::genesis_block();
     let block_template = BlockTemplate::new(
@@ -49,5 +28,22 @@ fn get_template() -> BlockTemplate<Testnet2> {
             .next()
             .unwrap(),
     );
-    block_template
+
+    println!("Difficulty_target is: {:?}", difficulty_target);
+    for i in 0..10 {
+        let start = Instant::now();
+        Testnet2::posw()
+            .mine(&block_template, &AtomicBool::new(false), rng)
+            .unwrap();
+        let duration = start.elapsed();
+        println!(
+            "{}. Time elapsed in generating a valid proof() is: {:?}",
+            i, duration
+        );
+    }
+
+    // let _is_valid = Testnet2::posw().verify_from_block_header(Testnet2::genesis_block().header());
 }
+
+// println!("生成一个符合难度的证明");
+// println!("验证一个证明");

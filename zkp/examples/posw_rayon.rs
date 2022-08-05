@@ -19,7 +19,7 @@ async fn main() {
     }
 }
 
-fn get_thread_pools() ->  Vec<Arc<ThreadPool>> {
+fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
     let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
     for index in 0..10 {
         let pool = ThreadPoolBuilder::new()
@@ -52,8 +52,7 @@ async fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
                     "{}. Time elapsed in generating a valid proof() is: {:?}",
                     "-", duration
                 );
-            });
-            // })
+            })
         }));
     }
     futures::future::join_all(joins).await;

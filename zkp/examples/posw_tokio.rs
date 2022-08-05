@@ -6,32 +6,38 @@ use snarkvm::dpc::{testnet2::Testnet2, BlockTemplate, Network, PoSWScheme};
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 
-fn main() {
+use tokio::task;
+
+#[tokio::main]
+async fn main() {
     for _ in 0..100 {
-        mine();
+        mine().await;
     }
 }
 
-fn mine() {
-    let rng = &mut ChaChaRng::seed_from_u64(1234567);
+async fn mine() {
     let block_template = get_template();
-
-    let start = Instant::now();
-    Testnet2::posw()
-        .mine(&block_template, &AtomicBool::new(false), rng)
-        .unwrap();
-    let duration = start.elapsed();
-    println!(
-        "{}. Time elapsed in generating a valid proof() is: {:?}",
-        "=", duration
-    );
+    for _ in 0..10 {
+        let block_template = block_template.clone();
+        let blocking_task = task::spawn_blocking(move || {
+            let rng = &mut ChaChaRng::seed_from_u64(1234567);
+            let start = Instant::now();
+            Testnet2::posw()
+                .mine(&block_template, &AtomicBool::new(false), rng)
+                .unwrap();
+            let duration = start.elapsed();
+            println!(
+                "{}. Time elapsed in generating a valid proof() is: {:?}",
+                "-", duration
+            );
+        });
+    }
 }
 
 fn get_template() -> BlockTemplate<Testnet2> {
-    // let difficulty_target: u64 = 18446744073709551615; // block.difficulty_target()
     let difficulty_target: u64 = 18446744073709551615;
-
     println!("Difficulty_target is: {:?}", difficulty_target);
+
     // Construct the block template.
     let block = Testnet2::genesis_block();
     let block_template = BlockTemplate::new(
