@@ -8,6 +8,10 @@ edition = "2021"
 [dependencies]
 rand = { version = "0.8.5" }
 
+rayon = { version = "1.5.3" } 
+tokio = { version = "1.19.2", features = ["full"] }
+futures = { version = "0.3.21" }
+
 [dependencies.snarkvm]
 git = "https://github.com/AleoHQ/snarkVM.git"
 # rev = "b258685f1" # 7月第一次提交的代码 # 跑不通
