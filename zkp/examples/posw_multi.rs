@@ -12,13 +12,14 @@ use tokio::task;
 
 #[tokio::main]
 async fn main() {
+    let thread_pools = get_thread_pools();
     for _ in 0..100 {
-        mine().await;
+        let thread_pools = thread_pools.clone();
+        mine(thread_pools).await;
     }
 }
 
-async fn mine() {
-    let mut joins = Vec::new();
+fn get_thread_pools() ->  Vec<Arc<ThreadPool>> {
     let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
     for index in 0..10 {
         let pool = ThreadPoolBuilder::new()
@@ -29,7 +30,11 @@ async fn mine() {
             .unwrap();
         thread_pools.push(Arc::new(pool));
     }
+    thread_pools
+}
 
+async fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
+    let mut joins = Vec::new();
     let block_template = get_template();
     for tp in thread_pools.iter() {
         let tp = tp.clone();
