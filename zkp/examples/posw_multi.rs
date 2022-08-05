@@ -1,22 +1,19 @@
 use std::sync::atomic::AtomicBool;
-use std::time::Instant;
 use std::sync::Arc;
+use std::time::Instant;
 
 use snarkvm::dpc::{testnet2::Testnet2, BlockTemplate, Network, PoSWScheme};
 
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 
-use tokio::task;
 use rayon::{ThreadPool, ThreadPoolBuilder};
-
-
+use tokio::task;
 
 #[tokio::main]
 async fn main() {
     mine().await;
     // mine().await;
-    
 }
 
 async fn mine() {
@@ -27,7 +24,8 @@ async fn mine() {
             .stack_size(8 * 1024 * 1024)
             .num_threads(5)
             .thread_name(move |idx| format!("ap-cpu-{}-{}", index, idx))
-            .build().unwrap();
+            .build()
+            .unwrap();
         thread_pools.push(Arc::new(pool));
     }
 
@@ -36,27 +34,26 @@ async fn mine() {
         let tp = tp.clone();
         let block_template = block_template.clone();
         // joins.push(task::spawn(async move {
-            joins.push(
-            task::spawn_blocking(move || {
-                tp.install(|| {
-                    let rng = &mut ChaChaRng::seed_from_u64(1234567);
-                    let start = Instant::now();
-                    Testnet2::posw()
-                        .mine(&block_template, &AtomicBool::new(false), rng)
-                        .unwrap();
-                    let duration = start.elapsed();
-                    println!(
-                        "{}. Time elapsed in generating a valid proof() is: {:?}",
-                        "-", duration
-                    );
-                });
+        joins.push(task::spawn_blocking(move || {
+            tp.install(|| {
+                let rng = &mut ChaChaRng::seed_from_u64(1234567);
+                let start = Instant::now();
+                Testnet2::posw()
+                    .mine(&block_template, &AtomicBool::new(false), rng)
+                    .unwrap();
+                let duration = start.elapsed();
+                println!(
+                    "{}. Time elapsed in generating a valid proof() is: {:?}",
+                    "-", duration
+                );
+            });
             // })
         }));
-    };
+    }
     futures::future::join_all(joins).await;
 }
 
-fn get_template() -> BlockTemplate<Testnet2>{
+fn get_template() -> BlockTemplate<Testnet2> {
     // let difficulty_target: u64 = 18446744073709551615; // block.difficulty_target()
     let difficulty_target: u64 = 18446744073709551615;
 
@@ -80,4 +77,3 @@ fn get_template() -> BlockTemplate<Testnet2>{
     );
     block_template
 }
-
