@@ -17,6 +17,7 @@ async fn main() {
 
 async fn mine() {
     let block_template = get_template();
+    let mut joins = Vec::new();
     for _ in 0..10 {
         let block_template = block_template.clone();
         let blocking_task = task::spawn_blocking(move || {
@@ -31,7 +32,9 @@ async fn mine() {
                 "-", duration
             );
         });
+        joins.push(blocking_task);
     }
+    futures::future::join_all(joins).await;
 }
 
 fn get_template() -> BlockTemplate<Testnet2> {
