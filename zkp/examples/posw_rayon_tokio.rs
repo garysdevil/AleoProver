@@ -16,12 +16,15 @@ mod utils;
 async fn main() {
     let thread_pools = get_thread_pools();
     let start = std::time::Instant::now();
-    for _ in 0..10 {
+    for _ in 0..100 {
         let thread_pools = thread_pools.clone();
         mine(thread_pools).await;
     }
     let duration = start.elapsed();
-    println!("{}. Total time elapsed  {:?}", "-", duration);
+    println!(
+        "{}. Total time elapsed  {:?}",
+        "posw_rayon_tokio.rs", duration
+    );
 }
 
 fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
@@ -46,6 +49,7 @@ async fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
         let block_template = block_template.clone();
         // joins.push(task::spawn(async move {
         joins.push(task::spawn_blocking(move || {
+            // task::spawn_blocking 比 task::spawn 快0.0427s
             tp.install(|| {
                 let rng = &mut ChaChaRng::seed_from_u64(1234567);
                 let start = Instant::now();

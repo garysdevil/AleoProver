@@ -12,9 +12,9 @@ use rayon::{ThreadPool, ThreadPoolBuilder};
 mod utils;
 
 fn main() {
-    utils::time_spend(|| -> () {
+    utils::time_spend("posw_rayon.rs", || -> () {
         let thread_pools = get_thread_pools();
-        for _ in 0..10 {
+        for _ in 0..100 {
             let thread_pools = thread_pools.clone();
             mine(thread_pools);
         }

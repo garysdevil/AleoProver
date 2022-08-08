@@ -11,11 +11,11 @@ use tokio::task;
 #[tokio::main]
 async fn main() {
     let start = std::time::Instant::now();
-    for _ in 0..10 {
+    for _ in 0..100 {
         mine().await;
     }
     let duration = start.elapsed();
-    println!("{}. Total time elapsed  {:?}", "-", duration);
+    println!("{}. Total time elapsed  {:?}", "posw_tokio.rs", duration);
 }
 
 async fn mine() {

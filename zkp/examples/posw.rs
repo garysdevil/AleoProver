@@ -7,7 +7,7 @@ use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 
 fn main() {
-    for _ in 0..100 {
+    for _ in 0..1000 {
         mine();
     }
 }
