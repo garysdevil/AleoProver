@@ -23,7 +23,7 @@ async fn mine() {
     let mut joins = Vec::new();
     for i in 0..10 {
         let block_template = block_template.clone();
-        let blocking_task = task::spawn_blocking(move || {
+        joins.push(task::spawn_blocking(move || {
             let rng = &mut ChaChaRng::seed_from_u64(1234567);
             let start = Instant::now();
             Testnet2::posw()
@@ -34,8 +34,7 @@ async fn mine() {
                 "{}. Time elapsed in generating a valid proof() is: {:?}",
                 i, duration
             );
-        });
-        joins.push(blocking_task);
+        }));
     }
     futures::future::join_all(joins).await;
 }
