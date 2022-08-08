@@ -9,7 +9,7 @@ use rand_chacha::ChaChaRng;
 mod utils;
 
 fn main() {
-    utils::time_spend("posw_single.rs", || -> () {
+    utils::time_spend("posw_multi.rs", || -> () {
         for _ in 0..100 {
             mine();
         }
@@ -17,7 +17,6 @@ fn main() {
 }
 
 fn mine() {
-    
     let block_template = get_template();
     let mut joins = Vec::new();
     for i in 0..10 {
