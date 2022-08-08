@@ -37,23 +37,27 @@ fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
 
 fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
     let block_template = get_template();
-    let mut i = 0;
+    let mut joins = Vec::new();
     for tp in thread_pools.iter() {
         let tp = tp.clone();
         let block_template = block_template.clone();
-        tp.install(|| {
-            let rng = &mut ChaChaRng::seed_from_u64(1234567);
-            let start = Instant::now();
-            Testnet2::posw()
-                .mine(&block_template, &AtomicBool::new(false), rng)
-                .unwrap();
-            let duration = start.elapsed();
-            println!(
-                "{}. Time elapsed in generating a valid proof() is: {:?}",
-                i, duration
-            );
-            i += 1;
-        });
+        joins.push(std::thread::spawn(move || {
+            tp.install(|| {
+                let rng = &mut ChaChaRng::seed_from_u64(1234567);
+                let start = Instant::now();
+                Testnet2::posw()
+                    .mine(&block_template, &AtomicBool::new(false), rng)
+                    .unwrap();
+                let duration = start.elapsed();
+                println!(
+                    "{}. Time elapsed in generating a valid proof() is: {:?}",
+                    "-", duration
+                );
+            })
+        }));
+    }
+    for thread in joins {
+        thread.join().unwrap();
     }
 }
 

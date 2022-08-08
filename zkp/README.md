@@ -21,3 +21,7 @@ unbuffer a | tee -a local.log
 - ``run --release --example posw_rayon_tokio``
     - Total time elapsed  581.062611586s
     - 58.1%
+
+- ``run --release --example posw_rayon_multi``
+    - Total time elapsed  885.977078525s
+    - 88.1%

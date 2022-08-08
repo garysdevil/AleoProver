@@ -10,13 +10,13 @@ mod utils;
 
 fn main() {
     utils::time_spend("posw_single.rs", || -> () {
-        for _ in 0..1000 {
-            mine();
+        for i in 0..1000 {
+            mine(i);
         }
     });
 }
 
-fn mine() {
+fn mine(i: u32) {
     let rng = &mut ChaChaRng::seed_from_u64(1234567);
     let block_template = get_template();
 
@@ -27,7 +27,7 @@ fn mine() {
     let duration = start.elapsed();
     println!(
         "{}. Time elapsed in generating a valid proof() is: {:?}",
-        "=", duration
+        i, duration
     );
 }
 
