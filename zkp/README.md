@@ -25,3 +25,7 @@ unbuffer a | tee -a local.log
 - ``run --release --example posw_rayon_multi``
     - Total time elapsed  885.977078525s
     - 88.1%
+
+- ``cargo run --release --example posw_rayon_multi``
+    - Total time elapsed  575.091173021s
+    - 57.9%
