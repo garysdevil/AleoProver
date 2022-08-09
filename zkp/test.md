@@ -28,7 +28,7 @@
     - 57.9%
 
 
-### 进行1000次计算获取有效结果
+### 非并行计算，进行1000次计算获取有效结果
 
 - ``cargo run --release --example posw_single``
     - Total time elapsed  2471.244337022s
