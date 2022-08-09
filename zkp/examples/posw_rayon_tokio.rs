@@ -32,7 +32,7 @@ fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
     for index in 0..10 {
         let pool = ThreadPoolBuilder::new()
             .stack_size(8 * 1024 * 1024)
-            .num_threads(5)
+            .num_threads(20)
             .thread_name(move |idx| format!("ap-cpu-{}-{}", index, idx))
             .build()
             .unwrap();
