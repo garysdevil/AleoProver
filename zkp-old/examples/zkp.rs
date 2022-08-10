@@ -1,5 +1,6 @@
+//
+
 use rand::thread_rng;
-use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 use std::sync::atomic::AtomicBool;
 
@@ -53,7 +54,7 @@ pub fn get_proof(block_template: BlockTemplate<Testnet2>, random: u64) -> PoSWPr
     proof
 }
 
-fn get_genesis_template() -> BlockTemplate<Testnet2> {
+pub fn get_genesis_template() -> BlockTemplate<Testnet2> {
     // let difficulty_target: u64 = 18446744073709551615; // block.difficulty_target()
     let difficulty_target: u64 = 18446744073709551615;
 
@@ -78,11 +79,10 @@ fn get_genesis_template() -> BlockTemplate<Testnet2> {
     block_template
 }
 
+pub fn mine() {
+    get_proof(get_genesis_template(), random());
+}
+
 fn main() {
-    let mut rng = thread_rng();
-    let genesis_template = get_genesis_template();
-    for _ in 0..200 {
-        let random = rng.gen_range(0..=u64::MAX);
-        get_proof(genesis_template.clone(), random);
-    }
+    get_proof(get_genesis_template(), random());
 }

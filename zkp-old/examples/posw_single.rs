@@ -7,6 +7,7 @@ use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 
 mod utils;
+mod zkp;
 
 fn main() {
     utils::time_spend("posw_single.rs", || -> () {
