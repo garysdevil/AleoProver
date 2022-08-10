@@ -7,7 +7,7 @@ use std::sync::atomic::AtomicBool;
 use snarkvm::dpc::{
     posw::PoSWCircuit, testnet2::Testnet2, BlockTemplate, Network, PoSWProof, PoSWScheme,
 };
-use snarkvm::utilities::Uniform;
+use snarkvm::utilities::UniformRand;
 
 use snarkvm_algorithms::SNARK;
 
@@ -16,7 +16,7 @@ use rand::prelude::*;
 pub fn get_proof(block_template: BlockTemplate<Testnet2>, random: u64) -> PoSWProof<Testnet2> {
     let terminator = &AtomicBool::new(false);
     let rng = &mut ChaChaRng::seed_from_u64(random);
-    let circuit = match PoSWCircuit::<Testnet2>::new(&block_template, Uniform::rand(rng)) {
+    let circuit = match PoSWCircuit::<Testnet2>::new(&block_template, UniformRand::rand(rng)) {
         Ok(circuit) => circuit,
         Err(e) => panic!("posw circuit {}", e),
     };
