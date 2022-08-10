@@ -26,6 +26,7 @@ path="/root/vscode/snarkVM"
 
 [dependencies.snarkvm-algorithms]
 # git = "https://github.com/AleoHQ/snarkVM.git"
+# rev = "3887cbbe7" 
 path="/root/vscode/snarkVM/algorithms"
 
 [dev-dependencies]

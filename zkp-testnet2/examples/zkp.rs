@@ -34,23 +34,23 @@ pub fn get_proof(block_template: BlockTemplate<Testnet2>, random: u64) -> PoSWPr
         panic!("-")
     };
 
-    if Testnet2::posw().verify(
-        0,
-        block_template.difficulty_target(),
-        &circuit.to_public_inputs(),
-        &proof,
-    ) {
-        // Construct a block header.
-        // return Ok(BlockHeader::from(
-        //     block_template.previous_ledger_root(),
-        //     block_template.transactions().transactions_root(),
-        //     BlockHeaderMetadata::new(block_template),
-        //     circuit.nonce(),
-        //     proof,
-        // )?);
-    } else {
-        dbg!("----");
-    }
+    // if Testnet2::posw().verify(
+    //     block_template.block_height(),
+    //     block_template.difficulty_target(),
+    //     &circuit.to_public_inputs(),
+    //     &proof,
+    // ) {
+    //     // Construct a block header.
+    //     // return Ok(BlockHeader::from(
+    //     //     block_template.previous_ledger_root(),
+    //     //     block_template.transactions().transactions_root(),
+    //     //     BlockHeaderMetadata::new(block_template),
+    //     //     circuit.nonce(),
+    //     //     proof,
+    //     // )?);
+    // } else {
+    //     dbg!("----");
+    // }
 
     proof
 }

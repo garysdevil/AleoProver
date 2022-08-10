@@ -1,15 +1,10 @@
-use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use std::time::Instant;
-
-use snarkvm::dpc::{testnet2::Testnet2, BlockTemplate, Network, PoSWScheme};
-
-use rand::SeedableRng;
-use rand_chacha::ChaChaRng;
 
 use rayon::{ThreadPool, ThreadPoolBuilder};
 
 mod utils;
+mod zkp;
 
 fn main() {
     utils::time_spend("posw_rayon_multi.rs", || -> () {
@@ -23,7 +18,7 @@ fn main() {
 
 fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
     let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
-    for index in 0..10 {
+    for index in 0..4 {
         let pool = ThreadPoolBuilder::new()
             .stack_size(8 * 1024 * 1024)
             .num_threads(20)
@@ -36,18 +31,15 @@ fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
 }
 
 fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
-    let block_template = get_template();
+    let block_template = zkp::get_genesis_template();
     let mut joins = Vec::new();
     for tp in thread_pools.iter() {
         let tp = tp.clone();
         let block_template = block_template.clone();
         joins.push(std::thread::spawn(move || {
             tp.install(|| {
-                let rng = &mut ChaChaRng::seed_from_u64(1234567);
                 let start = Instant::now();
-                Testnet2::posw()
-                    .mine(&block_template, &AtomicBool::new(false), rng)
-                    .unwrap();
+                zkp::get_proof(block_template, rand::random::<u64>());
                 let duration = start.elapsed();
                 println!(
                     "{}. Time elapsed in generating a valid proof() is: {:?}",
@@ -59,28 +51,4 @@ fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
     for thread in joins {
         thread.join().unwrap();
     }
-}
-
-fn get_template() -> BlockTemplate<Testnet2> {
-    let difficulty_target: u64 = 18446744073709551615; // block.difficulty_target()
-
-    println!("Difficulty_target is: {:?}", difficulty_target);
-    // Construct the block template.
-    let block = Testnet2::genesis_block();
-    let block_template = BlockTemplate::new(
-        block.previous_block_hash(),
-        block.height(),
-        block.timestamp(),
-        difficulty_target,
-        block.cumulative_weight(),
-        block.previous_ledger_root(),
-        block.transactions().clone(),
-        block
-            .to_coinbase_transaction()
-            .unwrap()
-            .to_records()
-            .next()
-            .unwrap(),
-    );
-    block_template
 }
