@@ -10,8 +10,6 @@ use snarkvm::utilities::Uniform;
 
 use snarkvm_algorithms::SNARK;
 
-// type N = Testnet2;
-
 use rand::prelude::*;
 
 pub fn get_proof(block_template: BlockTemplate<Testnet2>, random: u64) -> PoSWProof<Testnet2> {
@@ -21,11 +19,6 @@ pub fn get_proof(block_template: BlockTemplate<Testnet2>, random: u64) -> PoSWPr
         Ok(circuit) => circuit,
         Err(e) => panic!("posw circuit {}", e),
     };
-
-    // let proof = match Testnet2::posw().prove_once_unchecked(&mut circuit, terminator, rng) {
-    //     Ok(proof) => proof,
-    //     Err(e) => panic!("posw proof {}", e),
-    // };
 
     let proof = if let Ok(proof) =
         <<Testnet2 as Network>::PoSWSNARK as SNARK>::prove_with_terminator(
