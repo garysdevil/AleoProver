@@ -3,36 +3,41 @@ use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 use std::sync::atomic::AtomicBool;
 
-// use snarkvm_algorithms::{MerkleParameters, CRH, SNARK};
-
 use snarkvm::dpc::{
-    posw::PoSWCircuit,
-    testnet2::Testnet2,
-    // BlockHeader,
-    // BlockHeaderMetadata,
-    // PoSWError,
-    BlockTemplate,
-    Network,
-    PoSWProof,
-    PoSWScheme,
+    posw::PoSWCircuit, testnet2::Testnet2, BlockTemplate, Network, PoSWProof, PoSWScheme,
 };
 use snarkvm::utilities::Uniform;
 
-type N = Testnet2;
+use snarkvm_algorithms::SNARK;
+
+// type N = Testnet2;
 
 use rand::prelude::*;
 
-pub fn get_proof(block_template: BlockTemplate<Testnet2>, random: u64) -> PoSWProof<N> {
+pub fn get_proof(block_template: BlockTemplate<Testnet2>, random: u64) -> PoSWProof<Testnet2> {
     let terminator = &AtomicBool::new(false);
     let rng = &mut ChaChaRng::seed_from_u64(random);
-    let mut circuit = match PoSWCircuit::<Testnet2>::new(&block_template, Uniform::rand(rng)) {
+    let circuit = match PoSWCircuit::<Testnet2>::new(&block_template, Uniform::rand(rng)) {
         Ok(circuit) => circuit,
         Err(e) => panic!("posw circuit {}", e),
     };
 
-    let proof = match Testnet2::posw().prove_once_unchecked(&mut circuit, terminator, rng) {
-        Ok(proof) => proof,
-        Err(e) => panic!("posw proof {}", e),
+    // let proof = match Testnet2::posw().prove_once_unchecked(&mut circuit, terminator, rng) {
+    //     Ok(proof) => proof,
+    //     Err(e) => panic!("posw proof {}", e),
+    // };
+
+    let proof = if let Ok(proof) =
+        <<Testnet2 as Network>::PoSWSNARK as SNARK>::prove_with_terminator(
+            <Testnet2 as Network>::posw_proving_key(),
+            &circuit,
+            &*terminator,
+            &mut thread_rng(),
+        ) {
+        let temp = proof.into();
+        PoSWProof::<Testnet2>::new(temp)
+    } else {
+        panic!("-")
     };
 
     if Testnet2::posw().verify(
@@ -51,6 +56,7 @@ pub fn get_proof(block_template: BlockTemplate<Testnet2>, random: u64) -> PoSWPr
     } else {
         dbg!("----");
     }
+
     proof
 }
 
