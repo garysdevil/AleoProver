@@ -3,14 +3,9 @@ use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 use std::sync::atomic::AtomicBool;
 
-// use snarkvm_algorithms::{MerkleParameters, CRH, SNARK};
-
 use snarkvm::dpc::{
     posw::PoSWCircuit,
     testnet2::Testnet2,
-    // BlockHeader,
-    // BlockHeaderMetadata,
-    // PoSWError,
     BlockTemplate,
     Network,
     PoSWProof,

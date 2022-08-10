@@ -6,24 +6,3 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rand = { version = "0.8.5" }
-
-rayon = { version = "1.5.3" } 
-tokio = { version = "1.19.2", features = ["full"] }
-futures = { version = "0.3.21" }
-
-[dependencies.snarkvm]
-git = "https://github.com/AleoHQ/snarkVM.git"
-# rev = "b258685f1" # 7月第一次提交的代码 # 跑不通
-rev = "5a681812a" # 6月14日
-# rev = "0ba1ece69" # # 6月3日
-# rev = "3887cbbe7" # testnet2
-
-[dependencies.snarkvm-algorithms]
-git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "5a681812a" # 6月14日
-
-[dev-dependencies.rand_chacha]
-version = "0.3"
-
-
