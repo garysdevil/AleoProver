@@ -35,6 +35,7 @@ pub fn get_proof(block_template: BlockTemplate<Testnet2>, random: u64) -> PoSWPr
     };
 
     if Testnet2::posw().verify(
+        0,
         block_template.difficulty_target(),
         &circuit.to_public_inputs(),
         &proof,

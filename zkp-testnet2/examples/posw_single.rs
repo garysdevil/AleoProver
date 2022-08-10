@@ -1,5 +1,5 @@
-use std::time::Instant;
 use rand::prelude::*;
+use std::time::Instant;
 
 mod utils;
 mod zkp;
@@ -24,4 +24,3 @@ fn mine(i: u32) {
         i, duration
     );
 }
-
