@@ -4,12 +4,7 @@ use rand_chacha::ChaChaRng;
 use std::sync::atomic::AtomicBool;
 
 use snarkvm::dpc::{
-    posw::PoSWCircuit,
-    testnet2::Testnet2,
-    BlockTemplate,
-    Network,
-    PoSWProof,
-    PoSWScheme,
+    posw::PoSWCircuit, testnet2::Testnet2, BlockTemplate, Network, PoSWProof, PoSWScheme,
 };
 use snarkvm::utilities::Uniform;
 
