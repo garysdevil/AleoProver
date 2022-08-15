@@ -1,12 +1,10 @@
-//
+#![allow(dead_code)]
 
 use rand::thread_rng;
 use rand_chacha::ChaChaRng;
 use std::sync::atomic::AtomicBool;
 
-use snarkvm::dpc::{
-    posw::PoSWCircuit, testnet2::Testnet2, BlockTemplate, Network, PoSWProof, PoSWScheme,
-};
+use snarkvm::dpc::{posw::PoSWCircuit, testnet2::Testnet2, BlockTemplate, Network, PoSWProof};
 use snarkvm::utilities::UniformRand;
 
 use snarkvm_algorithms::SNARK;
@@ -78,10 +76,6 @@ pub fn get_genesis_template() -> BlockTemplate<Testnet2> {
             .unwrap(),
     );
     block_template
-}
-
-pub fn mine() {
-    get_proof(get_genesis_template(), random());
 }
 
 fn main() {
