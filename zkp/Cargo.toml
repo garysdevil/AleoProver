@@ -12,14 +12,38 @@ rayon = { version = "1.5.3" }
 tokio = { version = "1.19.2", features = ["full"] }
 futures = { version = "0.3.21" }
 
+criterion = { version = "0.3.5" } # 基准测试工具
+
+
 [dependencies.snarkvm]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "22f3aa8f5"
+rev = "09a141a88"
+# 09a141a88 20220814
 
 [dependencies.snarkvm-algorithms]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "22f3aa8f5"
+rev = "09a141a88"
 
+[dependencies.snarkvm-curves]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "09a141a88"
 
-[workspace]
-members = []
+[dependencies.snarkvm-fields]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "09a141a88"
+
+[dependencies.snarkvm-r1cs]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "09a141a88"
+
+[dependencies.snarkvm-utilities]
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "09a141a88"
+
+[[bench]]
+name = "marlin"
+path = "benches/algorithm_marlin.rs"
+harness = false
+
+# [workspace]
+# members = []
