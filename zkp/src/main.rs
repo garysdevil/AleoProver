@@ -1,4 +1,5 @@
 // mod algorithm_marlin;
-// mod prove;
 
-fn main() {}
+fn main() {
+    // algorithm_marlin::snark_prove();
+}
