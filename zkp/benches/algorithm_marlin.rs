@@ -6,7 +6,7 @@ use snarkvm_algorithms::{
 use snarkvm_curves::bls12_377::{Bls12_377, Fq, Fr};
 use snarkvm_fields::Field;
 use snarkvm_r1cs::{errors::SynthesisError, ConstraintSynthesizer, ConstraintSystem};
-use snarkvm_utilities::{ops::MulAssign, Uniform};
+use snarkvm_utilities::Uniform;
 
 use criterion::Criterion;
 use rand::{self, thread_rng};

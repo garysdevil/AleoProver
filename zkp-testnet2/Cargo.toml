@@ -31,3 +31,8 @@ rev = "3887cbbe7"
 
 [dev-dependencies]
 criterion = { version = "0.3.5" }
+
+[[bench]]
+name = "testnet2_prove"
+path = "examples/bench.rs"
+harness = false
