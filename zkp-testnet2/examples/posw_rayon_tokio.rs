@@ -4,7 +4,6 @@ use std::time::Instant;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use tokio::task;
 
-mod utils;
 mod zkp;
 
 #[tokio::main]
