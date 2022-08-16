@@ -8,15 +8,12 @@ edition = "2021"
 [features]
 cuda = ["snarkvm-algorithms/cuda"]
 
-
 [dependencies]
 rand = { version = "0.8.5" }
 rand_chacha = { version = "0.3" }
-rayon = { version = "1.5.3" } 
 tokio = { version = "1.19.2", features = ["full"] }
 futures = { version = "0.3.21" }
-
-criterion = { version = "0.3.5" } # 基准测试工具
+rayon = { version = "1.5.3" }
 
 [dependencies.snarkvm]
 git = "https://github.com/AleoHQ/snarkVM.git"
@@ -43,6 +40,8 @@ rev = "09a141a88"
 git = "https://github.com/AleoHQ/snarkVM.git"
 rev = "09a141a88"
 
+[dev-dependencies]
+criterion = { version = "0.3.5" }
 
 [[bench]]
 name = "marlin"
