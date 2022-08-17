@@ -19,22 +19,29 @@ futures = { version = "0.3.21" }
 rayon = { version = "1.5.3" }
 
 [dependencies.snarkvm]
-path = "../../snarkVM"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "09a141a88"
+# 09a141a88 20220814
 
 [dependencies.snarkvm-algorithms]
-path = "../../snarkVM/algorithms"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "09a141a88"
 
 [dependencies.snarkvm-curves]
-path = "../../snarkVM/curves"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "09a141a88"
 
 [dependencies.snarkvm-fields]
-path = "../../snarkVM/fields"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "09a141a88"
 
 [dependencies.snarkvm-r1cs]
-path = "../../snarkVM/r1cs"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "09a141a88"
 
 [dependencies.snarkvm-utilities]
-path = "../../snarkVM/utilities"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "09a141a88"
 
 [dev-dependencies]
 criterion = { version = "0.3.5" }
