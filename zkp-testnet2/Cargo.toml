@@ -23,7 +23,7 @@ git = "https://github.com/AleoHQ/snarkVM.git"
 # rev = "b258685f1" # 7月第一次提交的代码 # 跑不通
 rev = "3887cbbe7" # testnet2 最后一次提交6月30日
 # rev = "5a681812a" # 6月14日
-# rev = "0ba1ece69" # # 6月3日
+# rev = "5f8d31956" # # 2月12日 0.8.0
 # path="/root/vscode/snarkVM"
 
 [dependencies.snarkvm-algorithms]
