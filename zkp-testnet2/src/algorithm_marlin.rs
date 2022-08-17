@@ -62,7 +62,7 @@ impl<ConstraintF: Field> ConstraintSynthesizer<ConstraintF> for Benchmark<Constr
     }
 }
 
-fn snark_prove() {
+pub fn snark_prove() {
     let num_constraints = 100;
     let num_variables = 100;
     let rng = &mut thread_rng();
@@ -93,5 +93,6 @@ fn snark_prove() {
             num_variables,
         },
         rng,
-    );
+    )
+    .unwrap();
 }
