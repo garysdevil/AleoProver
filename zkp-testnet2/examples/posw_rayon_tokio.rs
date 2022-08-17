@@ -4,7 +4,7 @@ use std::time::Instant;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use tokio::task;
 
-use zkp_testnet2::zkp;
+use zkp_testnet2::posw;
 
 #[tokio::main]
 async fn main() {
@@ -37,7 +37,7 @@ fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
 
 async fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
     let mut joins = Vec::new();
-    let block_template = zkp::get_genesis_template();
+    let block_template = posw::get_genesis_template();
     for tp in thread_pools.iter() {
         let tp = tp.clone();
         let block_template = block_template.clone();
@@ -46,7 +46,7 @@ async fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
             // task::spawn_blocking 比 task::spawn 快0.0427s
             tp.install(|| {
                 let start = Instant::now();
-                zkp::get_proof(block_template, rand::random::<u64>());
+                posw::get_proof(block_template, rand::random::<u64>());
                 let duration = start.elapsed();
                 println!(
                     "{}. Time elapsed in generating a valid proof() is: {:?}",

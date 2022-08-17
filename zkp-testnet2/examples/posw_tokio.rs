@@ -2,7 +2,7 @@ use std::time::Instant;
 
 use tokio::task;
 
-use zkp_testnet2::zkp;
+use zkp_testnet2::posw;
 
 #[tokio::main]
 async fn main() {
@@ -15,13 +15,13 @@ async fn main() {
 }
 
 async fn mine() {
-    let block_template = zkp::get_genesis_template();
+    let block_template = posw::get_genesis_template();
     let mut joins = Vec::new();
     for i in 0..10 {
         let block_template = block_template.clone();
         joins.push(task::spawn_blocking(move || {
             let start = Instant::now();
-            zkp::get_proof(block_template, rand::random::<u64>());
+            posw::get_proof(block_template, rand::random::<u64>());
             let duration = start.elapsed();
             println!(
                 "{}. Time elapsed in generating a valid proof() is: {:?}",

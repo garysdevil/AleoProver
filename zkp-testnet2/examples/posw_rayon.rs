@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use rayon::{ThreadPool, ThreadPoolBuilder};
 
-use zkp_testnet2::zkp;
+use zkp_testnet2::posw;
 
 mod utils;
 
@@ -32,7 +32,7 @@ fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
 }
 
 fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
-    let block_template = zkp::get_genesis_template();
+    let block_template = posw::get_genesis_template();
     let mut i = 0;
     for tp in thread_pools.iter() {
         let tp = tp.clone();
@@ -40,7 +40,7 @@ fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
         tp.install(|| {
             // let rng = &mut ChaChaRng::seed_from_u64(1234567);
             let start = Instant::now();
-            zkp::get_proof(block_template, rand::random::<u64>());
+            posw::get_proof(block_template, rand::random::<u64>());
             let duration = start.elapsed();
             println!(
                 "{}. Time elapsed in generating a valid proof() is: {:?}",

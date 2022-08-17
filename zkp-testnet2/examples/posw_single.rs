@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use zkp_testnet2::zkp;
+use zkp_testnet2::posw;
 
 mod utils;
 
@@ -13,10 +13,10 @@ fn main() {
 }
 
 fn mine(i: u32) {
-    let block_template = zkp::get_genesis_template();
+    let block_template = posw::get_genesis_template();
 
     let start = Instant::now();
-    zkp::get_proof(block_template, rand::random::<u64>());
+    posw::get_proof(block_template, rand::random::<u64>());
     let duration = start.elapsed();
     println!(
         "{}. Time elapsed in generating a valid proof() is: {:?}",
