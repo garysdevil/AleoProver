@@ -4,7 +4,7 @@ use std::time::Instant;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use tokio::task;
 
-mod algorithm_marlin;
+use zkp_testnet3::zkp;
 
 #[tokio::main]
 async fn main() {

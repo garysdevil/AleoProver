@@ -82,7 +82,7 @@ pub fn snark_prove(c: &mut Criterion) {
 
     let params = MarlinInst::circuit_setup(&universal_srs, &circuit).unwrap();
 
-    c.bench_function("snark_prove", move |b| {
+    c.bench_function("testnet3_marlin", move |b| {
         b.iter(|| MarlinInst::prove(&params.0, &circuit, rng).unwrap())
     });
 }

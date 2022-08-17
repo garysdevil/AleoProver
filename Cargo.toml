@@ -6,7 +6,7 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace]
-members = ["zkp-testnet2", "zkp"]
+members = ["zkp-testnet2", "zkp-testnet3"]
 # members = []
 
 [dependencies]
@@ -54,6 +54,9 @@ version = "0.3"
 
 [dependencies.zkp-testnet2]
 path = "./zkp-testnet2"
+
+[dependencies.zkp-testnet3]
+path = "./zkp-testnet3"
 
 [dev-dependencies]
 rusty-hook = "0.11.2"
