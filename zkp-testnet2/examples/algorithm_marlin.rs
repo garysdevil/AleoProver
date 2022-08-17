@@ -1,19 +1,19 @@
-// 参考 snarkVM/algorithms/benches/snark/marlin.rs
-
-use snarkvm_algorithms::{
-    crypto_hash::PoseidonSponge,
-    snark::marlin::{ahp::AHPForR1CS, FiatShamirAlgebraicSpongeRng, MarlinHidingMode, MarlinSNARK},
-    SNARK,
-};
 use snarkvm_curves::bls12_377::{Bls12_377, Fq, Fr};
 use snarkvm_fields::Field;
+use snarkvm_marlin::{
+    marlin::{MarlinRecursiveMode, MarlinSNARK as MarlinCore},
+    FiatShamirAlgebraicSpongeRng, PoseidonSponge,
+};
+use snarkvm_polycommit::sonic_pc::SonicKZG10;
 use snarkvm_r1cs::{errors::SynthesisError, ConstraintSynthesizer, ConstraintSystem};
-use snarkvm_utilities::Uniform;
+use snarkvm_utilities::UniformRand;
 
-use criterion::Criterion;
 use rand::{self, thread_rng};
 
-type MarlinInst = MarlinSNARK<Bls12_377, FS, MarlinHidingMode, [Fr]>;
+type MarlinInst = MarlinCore<Fr, Fq, PC, FS, MarlinRecursiveMode>;
+
+type PC = SonicKZG10<Bls12_377>;
+
 type FS = FiatShamirAlgebraicSpongeRng<Fr, Fq, PoseidonSponge<Fq, 6, 1>>;
 
 #[derive(Copy, Clone)]
@@ -62,7 +62,7 @@ impl<ConstraintF: Field> ConstraintSynthesizer<ConstraintF> for Benchmark<Constr
     }
 }
 
-pub fn snark_prove(c: &mut Criterion) {
+fn snark_prove() {
     let num_constraints = 100;
     let num_variables = 100;
     let rng = &mut thread_rng();
@@ -70,8 +70,10 @@ pub fn snark_prove(c: &mut Criterion) {
     let x = Fr::rand(rng);
     let y = Fr::rand(rng);
 
-    let max_degree = AHPForR1CS::<Fr, MarlinHidingMode>::max_degree(1000, 1000, 1000).unwrap();
-    let universal_srs = MarlinInst::universal_setup(&max_degree, rng).unwrap();
+    let max_degree =
+        snarkvm_marlin::ahp::AHPForR1CS::<Fr, MarlinRecursiveMode>::max_degree(1000, 1000, 1000)
+            .unwrap();
+    let universal_srs = MarlinInst::universal_setup(max_degree, rng).unwrap();
 
     let circuit = Benchmark::<Fr> {
         a: Some(x),
@@ -82,12 +84,14 @@ pub fn snark_prove(c: &mut Criterion) {
 
     let params = MarlinInst::circuit_setup(&universal_srs, &circuit).unwrap();
 
-    c.bench_function("snark_prove", move |b| {
-        b.iter(|| MarlinInst::prove(&params.0, &circuit, rng).unwrap())
-    });
+    MarlinInst::prove(
+        &params.0,
+        &Benchmark {
+            a: Some(x),
+            b: Some(y),
+            num_constraints,
+            num_variables,
+        },
+        rng,
+    );
 }
-
-use criterion::{criterion_group, criterion_main};
-
-criterion_group!(benches, snark_prove);
-criterion_main!(benches);

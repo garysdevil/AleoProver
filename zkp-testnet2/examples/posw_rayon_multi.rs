@@ -3,8 +3,9 @@ use std::time::Instant;
 
 use rayon::{ThreadPool, ThreadPoolBuilder};
 
+use zkp_testnet2::zkp;
+
 mod utils;
-mod zkp;
 
 fn main() {
     utils::time_spend("posw_rayon_multi.rs", || -> () {

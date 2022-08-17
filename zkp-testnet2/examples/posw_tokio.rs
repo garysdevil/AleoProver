@@ -2,7 +2,7 @@ use std::time::Instant;
 
 use tokio::task;
 
-mod zkp;
+use zkp_testnet2::zkp;
 
 #[tokio::main]
 async fn main() {

@@ -1,6 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
-mod zkp;
+use zkp_testnet2::zkp;
 
 fn testnet2_prove(c: &mut Criterion) {
     let block_template = zkp::get_genesis_template();

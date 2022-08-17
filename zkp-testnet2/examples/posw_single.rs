@@ -1,7 +1,8 @@
 use std::time::Instant;
 
+use zkp_testnet2::zkp;
+
 mod utils;
-mod zkp;
 
 fn main() {
     utils::time_spend("posw_single.rs", || -> () {
