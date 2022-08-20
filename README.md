@@ -4,6 +4,7 @@ cd zkp-testnet2
 cargo bench --bench testnet2_marlin
 
 cargo run --release --example zkp_rayon_tokio
+cargo run --release --example posw_single
 ```
 
 ```
