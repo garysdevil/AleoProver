@@ -11,6 +11,16 @@ path = "src/lib.rs"
 [features]
 cuda = ["snarkvm-algorithms/cuda"]
 
+[[bench]]
+harness = false
+name = "testnet2_prove"
+path = "benches/prove.rs"
+
+[[bench]]
+harness = false
+name = "testnet2_marlin"
+path = "benches/algorithm_marlin.rs"
+
 [dependencies]
 futures = {version = "0.3.21"}
 rand = {version = "0.8.5"}
@@ -45,13 +55,3 @@ path = "../../snarkVM-testnet2/polycommit"
 
 [dev-dependencies]
 criterion = {version = "0.3.5"}
-
-[[bench]]
-harness = false
-name = "testnet2_prove"
-path = "benches/prove.rs"
-
-[[bench]]
-harness = false
-name = "testnet2_marlin"
-path = "benches/algorithm_marlin.rs"
