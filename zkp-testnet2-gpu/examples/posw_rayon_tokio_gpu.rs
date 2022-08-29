@@ -55,7 +55,7 @@ async fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
         let tp = tp.clone();
         let block_template = block_template.clone();
         total_jobs -= 1;
-        let gpu_index = total_jobs%CUDA_NUMS;
+        let gpu_index = total_jobs % CUDA_NUMS;
         joins.push(task::spawn_blocking(move || {
             tp.install(|| {
                 let start = Instant::now();
