@@ -1,5 +1,7 @@
 ## ZKP
 ```bash
+
+cp zkp-testnet2/Cargo.remote.toml zkp-testnet2/Cargo.toml
 # 零知识证明计算测试 CPU模式
 
 # 单核测试
