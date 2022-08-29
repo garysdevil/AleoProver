@@ -8,9 +8,6 @@ edition = "2021"
 [lib]
 path = "src/lib.rs"
 
-[features]
-cuda = ["snarkvm-algorithms/cuda"]
-
 [dependencies]
 rand = { version = "0.8.5" }
 rand_chacha = { version = "0.3" }
