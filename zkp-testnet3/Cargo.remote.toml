@@ -8,9 +8,6 @@ edition = "2021"
 [lib]
 path = "src/lib.rs"
 
-[features]
-cuda = ["snarkvm-algorithms/cuda"]
-
 [dependencies]
 rand = { version = "0.8.5" }
 rand_chacha = { version = "0.3" }
@@ -50,6 +47,3 @@ criterion = { version = "0.3.5" }
 name = "testnet3_marlin"
 path = "benches/algorithm_marlin.rs"
 harness = false
-
-# [workspace]
-# members = []
