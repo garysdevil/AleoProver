@@ -1,9 +1,14 @@
 ## ZKP
 ```bash
 # 零知识证明计算测试 CPU模式
-cargo run --release --example posw_single
 
+# 单核测试
+cargo run --release --example posw_single
 cargo run --release --features cuda --example posw_single
 
-unbuffer cargo run --release --example posw | tee -a local.log
+# 多核测试
+cargo run --release --example posw_rayon_tokio
+cargo run --release --features cuda --example posw_rayon_tokio
+
+unbuffer cargo run --release --example posw_rayon_tokio | tee -a local.log
 ```

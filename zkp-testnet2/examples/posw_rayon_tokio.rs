@@ -22,11 +22,28 @@ async fn main() {
 }
 
 fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
+    let available_threads = num_cpus::get() as u16;
+    let mut pool_count = 0;
+    let mut pool_threads = 0;
+    if available_threads % 12 == 0 {
+        pool_count = available_threads / 12;
+        pool_threads = 12;
+    } else if available_threads % 10 == 0 {
+        pool_count = available_threads / 10;
+        pool_threads = 10;
+    } else if available_threads % 8 == 0 {
+        pool_count = available_threads / 8;
+        pool_threads = 8;
+    } else {
+        pool_count = available_threads / 6;
+        pool_threads = 6;
+    }
+
     let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
-    for index in 0..4 {
+    for index in 0..pool_count {
         let pool = ThreadPoolBuilder::new()
             .stack_size(8 * 1024 * 1024)
-            .num_threads(20)
+            .num_threads(pool_threads)
             .thread_name(move |idx| format!("ap-cpu-{}-{}", index, idx))
             .build()
             .unwrap();
