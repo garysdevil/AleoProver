@@ -38,6 +38,10 @@ fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
         pool_count = available_threads / 6;
         pool_threads = 6;
     }
+    println!(
+        "Pools  pool_count={}, pool_threads={}",
+        pool_count, pool_threads
+    );
 
     let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
     for index in 0..pool_count {
