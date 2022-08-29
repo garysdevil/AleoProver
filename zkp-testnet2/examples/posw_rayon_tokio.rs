@@ -22,7 +22,6 @@ async fn main() {
 }
 
 fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
-
     #[cfg(feature = "cuda")]
     return get_thread_pools_gpu();
 
@@ -45,10 +44,7 @@ fn get_thread_pools_gpu() -> Vec<Arc<ThreadPool>> {
             .unwrap();
         thread_pools.push(Arc::new(pool));
     }
-    println!(
-        "Pools  cuda_num={}, cuda_jobs={}",
-        cuda_num, cuda_jobs
-    );
+    println!("Pools  cuda_num={}, cuda_jobs={}", cuda_num, cuda_jobs);
     thread_pools
 }
 
