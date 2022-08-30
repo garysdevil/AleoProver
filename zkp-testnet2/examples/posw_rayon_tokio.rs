@@ -43,14 +43,19 @@ fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
     get_thread_pools_cpu()
 }
 
+
+#[cfg(feature = "cuda")]
+const CUDA_NUMS: i16 = 3;
+#[cfg(feature = "cuda")]
+const CUDA_JOBS: i16 = 6;
+#[cfg(feature = "cuda")]
+static TOTAL_JOBS: i16 = CUDA_JOBS * CUDA_NUMS;
 #[cfg(feature = "cuda")]
 fn get_thread_pools_gpu() -> Vec<Arc<ThreadPool>> {
     let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
 
-    let cuda_num = 1;
-    let cuda_jobs = 6;
-    let total_jobs = cuda_jobs * cuda_num;
-    for index in 0..total_jobs {
+    let total_job = TOTAL_JOBS;
+    for index in 0..total_job {
         let pool = ThreadPoolBuilder::new()
             .stack_size(8 * 1024 * 1024)
             .num_threads(2)
@@ -59,7 +64,7 @@ fn get_thread_pools_gpu() -> Vec<Arc<ThreadPool>> {
             .unwrap();
         thread_pools.push(Arc::new(pool));
     }
-    println!("Pools  cuda_num={}, cuda_jobs={}", cuda_num, cuda_jobs);
+    println!("Pools  CUDA_NUMS={}, CUDA_JOBS={}", CUDA_NUMS, CUDA_JOBS);
     thread_pools
 }
 
