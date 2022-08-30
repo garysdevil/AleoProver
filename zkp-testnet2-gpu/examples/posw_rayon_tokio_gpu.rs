@@ -43,7 +43,6 @@ fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
     get_thread_pools_cpu()
 }
 
-
 #[cfg(feature = "cuda")]
 const CUDA_NUMS: i16 = 3;
 #[cfg(feature = "cuda")]
@@ -117,7 +116,11 @@ impl Prover {
             joins.push(task::spawn_blocking(move || {
                 tp.install(|| {
                     let start = Instant::now();
-                    posw::get_proof_gpu(block_template, rand::random::<u64>(), total_jobs%CUDA_NUMS);
+                    posw::get_proof_gpu(
+                        block_template,
+                        rand::random::<u64>(),
+                        total_jobs % CUDA_NUMS,
+                    );
                     total_proofs.fetch_add(1, Ordering::SeqCst);
                     let duration = start.elapsed();
                     println!(
@@ -147,7 +150,11 @@ impl Prover {
                     let block_template = block_template.clone();
                     tp.install(|| {
                         time_spend("", || {
-                            posw::get_proof_gpu(block_template, rand::random::<u64>(), total_jobs%CUDA_NUMS);
+                            posw::get_proof_gpu(
+                                block_template,
+                                rand::random::<u64>(),
+                                total_jobs % CUDA_NUMS,
+                            );
                             total_proofs.fetch_add(1, Ordering::SeqCst);
                         });
                     })

@@ -43,7 +43,6 @@ fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
     get_thread_pools_cpu()
 }
 
-
 #[cfg(feature = "cuda")]
 const CUDA_NUMS: i16 = 3;
 #[cfg(feature = "cuda")]
