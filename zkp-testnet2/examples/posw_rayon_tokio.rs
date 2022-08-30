@@ -3,7 +3,7 @@ use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use ansi_term::Colour::{Cyan, Green, Red};
+use ansi_term::Colour::Cyan;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use tokio::task;
 
@@ -137,14 +137,10 @@ impl Prover {
                     // let terminator = terminator.clone();
                     let block_template = block_template.clone();
                     tp.install(|| {
-                        let start = Instant::now();
-                        posw::get_proof(block_template, rand::random::<u64>());
-                        total_proofs.fetch_add(1, Ordering::SeqCst);
-                        let duration = start.elapsed();
-                        println!(
-                            "{}. Time elapsed in generating a valid proof() is: {:?}",
-                            "-", duration
-                        );
+                        time_spend("", || {
+                            posw::get_proof(block_template, rand::random::<u64>());
+                            total_proofs.fetch_add(1, Ordering::SeqCst);
+                        });
                     })
                 }
             }));
@@ -190,4 +186,13 @@ impl Prover {
             }
         });
     }
+}
+
+
+fn time_spend<F>(comment: &str, f: F) where
+    F: FnOnce() {
+        let start = std::time::Instant::now();
+        f();
+        let duration = start.elapsed();
+        println!("{}. Total time elapsed  {:?}", comment, duration);
 }
