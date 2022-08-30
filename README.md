@@ -13,5 +13,10 @@ cargo bench --bench testnet3_marlin
 cargo bench testnet2_marlin --features cuda
 
 cargo run --release --example zkp_rayon_tokio
+
+```
+
+```
+cd zkp-testnet3-gpu
 cargo run --release --example zkp_rayon_tokio --features cuda
 ```
