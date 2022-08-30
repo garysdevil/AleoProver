@@ -6,57 +6,10 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace]
-members = ["zkp-testnet2", "zkp-testnet3", "zkp-testnet2-gpu"]
-# members = []
-
-[dependencies]
-snarkvm = { git = "https://github.com/AleoHQ/snarkVM.git", rev = "48c59e9" } # 旧版本
-snarkos = { git = "https://github.com/AleoHQ/snarkOS.git", rev = "504f077" }
-snarkos-storage = { git = "https://github.com/AleoHQ/snarkOS.git", rev = "504f077" } # 疑惑
-
-clap = {version = "3.2.4", features = ["derive"]}
-tracing = {version = "0.1.35"}
-tracing-subscriber = {version = "0.3.15"}
-
-tokio = {version = "1.19.2", features = ["full"]}
-
-# tokio-stream = { version = "0.1.9" } # 
-futures = {version = "0.3.21"}
-futures-util = "0.3.21"
-tokio-util = "0.6.9"
-tokio-stream = "0.1.8"
-
-rayon = {version = "1.5.3"}
-
-anyhow = {version = "1.0.58"}
-rand = {version = "0.8.5"}
-
-# [dependencies.tokio-util]
-# features = ["codec"]
-# version = "0.7.0"
-
-# [dependencies.snarkvm]
-# git = "https://github.com/AleoHQ/snarkVM.git"
-# # version = "0.8.0"
-# rev = "5f8d319"
-
-# [dependencies.snarkos]
-# git = "https://github.com/AleoHQ/snarkOS.git"
-# rev = "f2dd90de"
-
-# [dependencies.snarkos-storage]
-# git = "https://github.com/AleoHQ/snarkOS.git"
-# rev = "f2dd90de"
-
-
-[dev-dependencies.rand_chacha]
-version = "0.3"
+members = ["testnet2", "zkp-testnet2", "zkp-testnet3", "zkp-testnet2-gpu"]
 
 [dependencies.zkp-testnet2]
 path = "./zkp-testnet2"
 
 [dependencies.zkp-testnet3]
 path = "./zkp-testnet3"
-
-[dev-dependencies]
-rusty-hook = "0.11.2"
