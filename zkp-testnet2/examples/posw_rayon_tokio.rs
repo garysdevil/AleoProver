@@ -188,11 +188,12 @@ impl Prover {
     }
 }
 
-
-fn time_spend<F>(comment: &str, f: F) where
-    F: FnOnce() {
-        let start = std::time::Instant::now();
-        f();
-        let duration = start.elapsed();
-        println!("{}. Total time elapsed  {:?}", comment, duration);
+fn time_spend<F>(comment: &str, f: F)
+where
+    F: FnOnce(),
+{
+    let start = std::time::Instant::now();
+    f();
+    let duration = start.elapsed();
+    println!("{}. Total time elapsed  {:?}", comment, duration);
 }
