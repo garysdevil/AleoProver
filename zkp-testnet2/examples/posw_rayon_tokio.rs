@@ -1,19 +1,34 @@
+use std::collections::VecDeque;
+use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Arc;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
+use ansi_term::Colour::{Cyan, Green, Red};
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use tokio::task;
 
 use zkp_testnet2::posw;
 
+pub struct Prover {
+    terminator: Arc<AtomicBool>,
+    total_proofs: Arc<AtomicU32>,
+}
+
 #[tokio::main]
 async fn main() {
+    let prover = Arc::new(Prover {
+        terminator: Default::default(), //Arc::new(AtomicBool::new(false)),
+        total_proofs: Default::default(),
+    });
+
     let thread_pools = get_thread_pools();
     let start = std::time::Instant::now();
-    for _ in 0..100 {
-        let thread_pools = thread_pools.clone();
-        mine(thread_pools).await;
-    }
+    // for _ in 0..100 {
+    //     let thread_pools = thread_pools.clone();
+    //     prover.mine(thread_pools).await;
+    // }
+    prover.statistic().await;
+    prover.mine_with_terminator(thread_pools).await;
     let duration = start.elapsed();
     println!(
         "{}. Total time elapsed  {:?}",
@@ -52,8 +67,8 @@ fn get_thread_pools_cpu() -> Vec<Arc<ThreadPool>> {
     let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
 
     let available_threads = num_cpus::get() as u16;
-    let mut pool_count = 0;
-    let mut pool_threads = 0;
+    let pool_count;
+    let pool_threads;
     if available_threads % 12 == 0 {
         pool_count = available_threads / 12;
         pool_threads = 12;
@@ -84,25 +99,95 @@ fn get_thread_pools_cpu() -> Vec<Arc<ThreadPool>> {
     thread_pools
 }
 
-async fn mine(thread_pools: Vec<Arc<ThreadPool>>) {
-    let mut joins = Vec::new();
-    let block_template = posw::get_genesis_template();
-    for tp in thread_pools.iter() {
-        let tp = tp.clone();
-        let block_template = block_template.clone();
-        // joins.push(task::spawn(async move {
-        joins.push(task::spawn_blocking(move || {
-            // task::spawn_blocking 比 task::spawn 快0.0427s
-            tp.install(|| {
-                let start = Instant::now();
-                posw::get_proof(block_template, rand::random::<u64>());
-                let duration = start.elapsed();
-                println!(
-                    "{}. Time elapsed in generating a valid proof() is: {:?}",
-                    "-", duration
-                );
-            })
-        }));
+impl Prover {
+    async fn mine(&self, thread_pools: Vec<Arc<ThreadPool>>) {
+        let mut joins = Vec::new();
+        let block_template = posw::get_genesis_template();
+        for tp in thread_pools.iter() {
+            let total_proofs = self.total_proofs.clone();
+            let tp = tp.clone();
+            let block_template = block_template.clone();
+            joins.push(task::spawn_blocking(move || {
+                tp.install(|| {
+                    let start = Instant::now();
+                    posw::get_proof(block_template, rand::random::<u64>());
+                    total_proofs.fetch_add(1, Ordering::SeqCst);
+                    let duration = start.elapsed();
+                    println!(
+                        "{}. Time elapsed in generating a valid proof() is: {:?}",
+                        "-", duration
+                    );
+                })
+            }));
+        }
+        futures::future::join_all(joins).await;
     }
-    futures::future::join_all(joins).await;
+    async fn mine_with_terminator(&self, thread_pools: Vec<Arc<ThreadPool>>) {
+        let mut joins = Vec::new();
+        let block_template = posw::get_genesis_template();
+        for tp in thread_pools.iter() {
+            let total_proofs = self.total_proofs.clone();
+            let terminator = self.terminator.clone();
+            let tp = tp.clone();
+            let block_template = block_template.clone();
+            joins.push(task::spawn_blocking(move || {
+                // joins.push(task::spawn(async move {
+                while !terminator.load(Ordering::SeqCst) {
+                    let total_proofs = total_proofs.clone();
+                    // let terminator = terminator.clone();
+                    let block_template = block_template.clone();
+                    tp.install(|| {
+                        let start = Instant::now();
+                        posw::get_proof(block_template, rand::random::<u64>());
+                        total_proofs.fetch_add(1, Ordering::SeqCst);
+                        let duration = start.elapsed();
+                        println!(
+                            "{}. Time elapsed in generating a valid proof() is: {:?}",
+                            "-", duration
+                        );
+                    })
+                }
+            }));
+        }
+        futures::future::join_all(joins).await;
+    }
+
+    async fn statistic(&self) {
+        let total_proofs = self.total_proofs.clone();
+        task::spawn(async move {
+            fn calculate_proof_rate(now: u32, past: u32, interval: u32) -> Box<str> {
+                if interval < 1 {
+                    return Box::from("---");
+                }
+                if now <= past || past == 0 {
+                    return Box::from("---");
+                }
+                let rate = (now - past) as f64 / (interval * 60) as f64;
+                Box::from(format!("{:.2}", rate))
+            }
+            let mut log = VecDeque::<u32>::from(vec![0; 60]);
+            loop {
+                tokio::time::sleep(Duration::from_secs(60)).await;
+                let proofs = total_proofs.load(Ordering::SeqCst);
+                log.push_back(proofs);
+                let m1 = *log.get(59).unwrap_or(&0);
+                let m5 = *log.get(55).unwrap_or(&0);
+                let m15 = *log.get(45).unwrap_or(&0);
+                let m30 = *log.get(30).unwrap_or(&0);
+                let m60 = log.pop_front().unwrap_or_default();
+                println!(
+                    "{}",
+                    Cyan.normal().paint(format!(
+                    "Total proofs: {} (1m: {} p/s, 5m: {} p/s, 15m: {} p/s, 30m: {} p/s, 60m: {} p/s)",
+                        proofs,
+                        calculate_proof_rate(proofs, m1, 1),
+                        calculate_proof_rate(proofs, m5, 5),
+                        calculate_proof_rate(proofs, m15, 15),
+                        calculate_proof_rate(proofs, m30, 30),
+                        calculate_proof_rate(proofs, m60, 60),
+                    ))
+                );
+            }
+        });
+    }
 }
