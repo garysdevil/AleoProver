@@ -21,111 +21,54 @@ async fn main() {
         total_proofs: Default::default(),
     });
 
-    let thread_pools = get_thread_pools();
-    let start = std::time::Instant::now();
-    // for _ in 0..100 {
-    //     let thread_pools = thread_pools.clone();
-    //     prover.mine(thread_pools).await;
-    // }
+    let thread_pools = prover.get_thread_pools();
     prover.statistic().await;
     prover.mine_with_terminator(thread_pools).await;
-    let duration = start.elapsed();
-    println!(
-        "{}. Total time elapsed  {:?}",
-        "posw_rayon_tokio.rs", duration
-    );
 }
 
-fn get_thread_pools() -> Vec<Arc<ThreadPool>> {
-    #[cfg(feature = "cuda")]
-    return get_thread_pools_gpu();
-
-    get_thread_pools_cpu()
-}
-
-#[cfg(feature = "cuda")]
-const CUDA_NUMS: i16 = 3;
-#[cfg(feature = "cuda")]
-const CUDA_JOBS: i16 = 6;
-#[cfg(feature = "cuda")]
-static TOTAL_JOBS: i16 = CUDA_JOBS * CUDA_NUMS;
-#[cfg(feature = "cuda")]
-fn get_thread_pools_gpu() -> Vec<Arc<ThreadPool>> {
-    let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
-
-    let total_job = TOTAL_JOBS;
-    for index in 0..total_job {
-        let pool = ThreadPoolBuilder::new()
-            .stack_size(8 * 1024 * 1024)
-            .num_threads(2)
-            .thread_name(move |idx| format!("ap-cuda-{}-{}", index, idx))
-            .build()
-            .unwrap();
-        thread_pools.push(Arc::new(pool));
-    }
-    println!("Pools  CUDA_NUMS={}, CUDA_JOBS={}", CUDA_NUMS, CUDA_JOBS);
-    thread_pools
-}
-
-fn get_thread_pools_cpu() -> Vec<Arc<ThreadPool>> {
-    let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
-
-    let available_threads = num_cpus::get() as u16;
-    let pool_count;
-    let pool_threads;
-    if available_threads % 12 == 0 {
-        pool_count = available_threads / 12;
-        pool_threads = 12;
-    } else if available_threads % 10 == 0 {
-        pool_count = available_threads / 10;
-        pool_threads = 10;
-    } else if available_threads % 8 == 0 {
-        pool_count = available_threads / 8;
-        pool_threads = 8;
-    } else {
-        pool_count = available_threads / 6;
-        pool_threads = 6;
-    }
-    println!(
-        "Pools  pool_count={}, pool_threads={}",
-        pool_count, pool_threads
-    );
-    for index in 0..pool_count {
-        let pool = ThreadPoolBuilder::new()
-            .stack_size(8 * 1024 * 1024)
-            .num_threads(pool_threads)
-            .thread_name(move |idx| format!("ap-cpu-{}-{}", index, idx))
-            .build()
-            .unwrap();
-        thread_pools.push(Arc::new(pool));
-    }
-
-    thread_pools
-}
 
 impl Prover {
-    async fn mine(&self, thread_pools: Vec<Arc<ThreadPool>>) {
-        let mut joins = Vec::new();
-        let block_template = posw::get_genesis_template();
-        for tp in thread_pools.iter() {
-            let total_proofs = self.total_proofs.clone();
-            let tp = tp.clone();
-            let block_template = block_template.clone();
-            joins.push(task::spawn_blocking(move || {
-                tp.install(|| {
-                    let start = Instant::now();
-                    posw::get_proof(block_template, rand::random::<u64>());
-                    total_proofs.fetch_add(1, Ordering::SeqCst);
-                    let duration = start.elapsed();
-                    println!(
-                        "{}. Time elapsed in generating a valid proof() is: {:?}",
-                        "-", duration
-                    );
-                })
-            }));
-        }
-        futures::future::join_all(joins).await;
+    fn get_thread_pools(&self) -> Vec<Arc<ThreadPool>> {
+        self.get_thread_pools_cpu()
     }
+    
+    
+    fn get_thread_pools_cpu(&self) -> Vec<Arc<ThreadPool>> {
+        let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
+    
+        let available_threads = num_cpus::get() as u16;
+        let pool_count;
+        let pool_threads;
+        if available_threads % 12 == 0 {
+            pool_count = available_threads / 12;
+            pool_threads = 12;
+        } else if available_threads % 10 == 0 {
+            pool_count = available_threads / 10;
+            pool_threads = 10;
+        } else if available_threads % 8 == 0 {
+            pool_count = available_threads / 8;
+            pool_threads = 8;
+        } else {
+            pool_count = available_threads / 6;
+            pool_threads = 6;
+        }
+        println!(
+            "Pools  pool_count={}, pool_threads={}",
+            pool_count, pool_threads
+        );
+        for index in 0..pool_count {
+            let pool = ThreadPoolBuilder::new()
+                .stack_size(8 * 1024 * 1024)
+                .num_threads(pool_threads)
+                .thread_name(move |idx| format!("ap-cpu-{}-{}", index, idx))
+                .build()
+                .unwrap();
+            thread_pools.push(Arc::new(pool));
+        }
+    
+        thread_pools
+    }
+    
     async fn mine_with_terminator(&self, thread_pools: Vec<Arc<ThreadPool>>) {
         let mut joins = Vec::new();
         let block_template = posw::get_genesis_template();

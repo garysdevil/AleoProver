@@ -54,18 +54,8 @@ async fn main() {
     });
 
     let thread_pools = prover.get_thread_pools();
-    let start = std::time::Instant::now();
-    // for _ in 0..100 {
-    //     let thread_pools = thread_pools.clone();
-    //     prover.mine(thread_pools).await;
-    // }
     prover.statistic().await;
     prover.mine_with_terminator(thread_pools).await;
-    let duration = start.elapsed();
-    println!(
-        "{}. Total time elapsed  {:?}",
-        "posw_rayon_tokio.rs", duration
-    );
 }
 
 impl Prover {
