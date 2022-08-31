@@ -32,27 +32,3 @@ branch = "gpu-index"
 [dependencies.snarkvm-algorithms]
 git = "https://github.com/HarukaMa/snarkVM.git"
 branch = "gpu-index"
-
-[dependencies.snarkvm-curves]
-git = "https://github.com/HarukaMa/snarkVM.git"
-branch = "gpu-index"
-
-[dependencies.snarkvm-fields]
-git = "https://github.com/HarukaMa/snarkVM.git"
-branch = "gpu-index"
-
-[dependencies.snarkvm-r1cs]
-git = "https://github.com/HarukaMa/snarkVM.git"
-branch = "gpu-index"
-
-[dependencies.snarkvm-utilities]
-git = "https://github.com/HarukaMa/snarkVM.git"
-branch = "gpu-index"
-
-[dependencies.snarkvm-marlin]
-git = "https://github.com/HarukaMa/snarkVM.git"
-branch = "gpu-index"
-
-[dependencies.snarkvm-polycommit]
-git = "https://github.com/HarukaMa/snarkVM.git"
-branch = "gpu-index"
