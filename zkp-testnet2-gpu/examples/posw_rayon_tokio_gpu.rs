@@ -1,10 +1,10 @@
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::{Duration};
 
-use clap::{Parser};
 use ansi_term::Colour::Cyan;
+use clap::Parser;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use tokio::task;
 
@@ -41,7 +41,7 @@ pub struct Prover {
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
-    if let None = cli.cuda{
+    if let None = cli.cuda {
         dbg!("No GPUs specified. Use -g 0 if there is only one GPU.");
         std::process::exit(1);
     }
@@ -68,17 +68,15 @@ async fn main() {
     );
 }
 
-
 impl Prover {
     fn get_thread_pools(&self) -> Vec<Arc<ThreadPool>> {
         #[cfg(feature = "cuda")]
         return self.get_thread_pools_gpu();
-    
     }
 
     fn get_thread_pools_gpu(&self) -> Vec<Arc<ThreadPool>> {
         let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
-    
+
         let total_jobs = self.cuda.len() as u8 * self.jobs;
         for index in 0..total_jobs {
             let pool = ThreadPoolBuilder::new()
@@ -96,7 +94,7 @@ impl Prover {
     async fn mine_with_terminator(&self, thread_pools: Vec<Arc<ThreadPool>>) {
         let mut joins = Vec::new();
         let block_template = posw::get_genesis_template();
-        let cuda_num =  self.cuda.len() as i16;
+        let cuda_num = self.cuda.len() as i16;
         let cuda_jobs = self.jobs as i16;
         let mut total_jobs = cuda_num * cuda_jobs;
         for tp in thread_pools.iter() {
