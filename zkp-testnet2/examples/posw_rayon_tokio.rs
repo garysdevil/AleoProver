@@ -1,24 +1,68 @@
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Arc;
-use std::time::{Duration};
+use std::time::Duration;
 
 use ansi_term::Colour::Cyan;
+use clap::Parser;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use tokio::task;
+use tracing::{debug, info};
+use tracing_subscriber::layer::SubscriberExt;
 
 use zkp_testnet2::posw;
+
+#[derive(Parser)]
+#[clap(author, version, about, long_about = None)]
+struct Cli {
+    #[cfg(feature = "cuda")]
+    #[clap(verbatim_doc_comment)]
+    /// Indexes of GPUs to use (starts from 0)
+    /// Specify multiple times to use multiple GPUs
+    /// Example: -g 0 -g 1 -g 2
+    /// Note: Pure CPU proving will be disabled as each GPU job requires one CPU thread as well
+    #[clap(short = 'g', long = "cuda")]
+    cuda: Option<Vec<i16>>,
+
+    #[cfg(feature = "cuda")]
+    #[clap(verbatim_doc_comment)]
+    /// Parallel jobs per GPU, defaults to 1
+    /// Example: -g 0 -g 1 -j 4
+    /// The above example will result in 8 jobs in total
+    #[clap(short = 'j', long = "cuda-jobs")]
+    jobs: Option<u8>,
+
+    /// Enable debug logging
+    #[structopt(short = 'd', long = "debug")]
+    debug: bool,
+}
 
 pub struct Prover {
     terminator: Arc<AtomicBool>,
     total_proofs: Arc<AtomicU32>,
+    #[cfg(feature = "cuda")]
+    cuda: Option<Vec<i16>>,
+    #[cfg(feature = "cuda")]
+    jobs: u8,
 }
 
 #[tokio::main]
 async fn main() {
+    let cli = Cli::parse();
+    #[cfg(feature = "cuda")]
+    if let None = cli.cuda {
+        dbg!("No GPUs specified. Use -g 0 if there is only one GPU.");
+        std::process::exit(1);
+    }
+    config_log(cli.debug);
+
     let prover = Arc::new(Prover {
         terminator: Default::default(), //Arc::new(AtomicBool::new(false)),
         total_proofs: Default::default(),
+        #[cfg(feature = "cuda")]
+        cuda: cli.cuda,
+        #[cfg(feature = "cuda")]
+        jobs: cli.jobs.unwrap_or(1),
     });
 
     let thread_pools = prover.get_thread_pools();
@@ -26,16 +70,14 @@ async fn main() {
     prover.mine_with_terminator(thread_pools).await;
 }
 
-
 impl Prover {
     fn get_thread_pools(&self) -> Vec<Arc<ThreadPool>> {
         self.get_thread_pools_cpu()
     }
-    
-    
+
     fn get_thread_pools_cpu(&self) -> Vec<Arc<ThreadPool>> {
         let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
-    
+
         let available_threads = num_cpus::get() as u16;
         let pool_count;
         let pool_threads;
@@ -65,10 +107,10 @@ impl Prover {
                 .unwrap();
             thread_pools.push(Arc::new(pool));
         }
-    
+
         thread_pools
     }
-    
+
     async fn mine_with_terminator(&self, thread_pools: Vec<Arc<ThreadPool>>) {
         let mut joins = Vec::new();
         let block_template = posw::get_genesis_template();
@@ -118,7 +160,7 @@ impl Prover {
                 let m15 = *log.get(45).unwrap_or(&0);
                 let m30 = *log.get(30).unwrap_or(&0);
                 let m60 = log.pop_front().unwrap_or_default();
-                println!(
+                info!(
                     "{}",
                     Cyan.normal().paint(format!(
                     "Total proofs: {} (1m: {} p/s, 5m: {} p/s, 15m: {} p/s, 30m: {} p/s, 60m: {} p/s)",
@@ -142,5 +184,31 @@ where
     let start = std::time::Instant::now();
     f();
     let duration = start.elapsed();
-    println!("{}. Total time elapsed  {:?}", comment, duration);
+    debug!("{}. Total time elapsed  {:?}", comment, duration);
+}
+
+fn config_log(debug: bool) {
+    let tracing_level = if debug {
+        tracing::Level::DEBUG
+    } else {
+        tracing::Level::INFO
+    };
+
+    let subscriber = tracing_subscriber::fmt::Subscriber::builder()
+        .with_max_level(tracing_level)
+        .finish();
+
+    let log_file: Option<String>;
+    log_file = None; //Some(String::from("./log.log"));
+    if let Some(file_path) = log_file {
+        let file = std::fs::File::create(file_path).unwrap();
+        let file = tracing_subscriber::fmt::layer()
+            .with_writer(file)
+            .with_ansi(false);
+        tracing::subscriber::set_global_default(subscriber.with(file))
+            .expect("unable to set global default subscriber");
+    } else {
+        tracing::subscriber::set_global_default(subscriber)
+            .expect("unable to set global default subscriber");
+    }
 }

@@ -29,6 +29,9 @@ rayon = {version = "1.5.3"}
 tokio = {version = "1.19.2", features = ["full"]}
 num_cpus = { version = "1.13.1" } 
 ansi_term = "0.12.1"
+clap = { version = "3.1", features = [ "derive" ] } 
+tracing = { version = "0.1.35"  }
+tracing-subscriber = { version = "0.3.15" }
 
 [dependencies.snarkvm]
 path = "../../snarkVM-testnet2"
