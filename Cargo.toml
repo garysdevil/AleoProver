@@ -6,10 +6,9 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace]
-# members = ["testnet2", "zkp-testnet2", "zkp-testnet2-gpu", "testnet3-storage"]
+# members = ["testnet2", "testnet2-zkp", "testnet2-zkp-gpu", "testnet3-storage"]
+# members = ["testnet3-storage"]
+exclude = ["testnet2", "testnet2-zkp", "testnet2-zkp-gpu","testnet3-storage"]
 
-members = ["testnet3-storage"]
-exclude = ["testnet2", "zkp-testnet2", "zkp-testnet2-gpu"]
-
-# [dependencies.zkp-testnet2]
-# path = "./zkp-testnet2"
+# [dependencies.testnet2-zkp]
+# path = "./testnet2-zkp"
