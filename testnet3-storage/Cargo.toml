@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "mylocal"
+name = "testnet3-storage"
 version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -8,10 +8,10 @@ version = "0.1.0"
 [dependencies]
 aleo-std = "0.1.14"
 bincode = "1.2.1"
+indexmap = {version = "1.9", features = ["rayon"]}
+once_cell = {version = "1.13.0"}
+parking_lot = {version = "0.12"}
 rocksdb = {version = "0.19.0"}
-once_cell = { version = "1.13.0" }
-parking_lot = { version = "0.12" }
-indexmap = { version = "1.9", features = ["rayon"] }
 [dependencies.anyhow]
 version = "1"
 [dependencies.serde_json]
@@ -21,17 +21,15 @@ version = "1"
 [dependencies.tracing]
 version = "0.1"
 [dependencies.tracing-subscriber]
+features = ["env-filter", "parking_lot"]
 version = "0.3"
-features = [ "env-filter", "parking_lot" ]
 [dependencies.thiserror]
 version = "1.0"
-
 
 [dependencies.snarkos]
 # git = "https://github.com/AleoHQ/snarkOS.git"
 # rev = "f8c0d9552"
 path = "/root/vscode/snarkOS"
-
 
 [dependencies.snarkvm]
 # git = "https://github.com/AleoHQ/snarkVM.git"
