@@ -6,10 +6,10 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace]
-members = ["testnet2", "zkp-testnet2", "zkp-testnet3", "zkp-testnet2-gpu"]
+members = ["testnet2", "zkp-testnet2", "zkp-testnet2-gpu"]
 
 [dependencies.zkp-testnet2]
 path = "./zkp-testnet2"
 
-[dependencies.zkp-testnet3]
-path = "./zkp-testnet3"
+# [dependencies.zkp-testnet3]
+# path = "./zkp-testnet3"

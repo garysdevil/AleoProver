@@ -28,6 +28,3 @@ apt-get install -y \
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 source $HOME/.cargo/env
 
-# Install snarkOS
-# cargo clean
-cargo install --path .
