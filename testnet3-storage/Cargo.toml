@@ -33,6 +33,6 @@ path = "/root/vscode/snarkOS"
 
 [dependencies.snarkvm]
 # git = "https://github.com/AleoHQ/snarkVM.git"
-# rev = "1db1f75"
+# rev = "b2cee23"
 # features = ["circuit", "console", "parallel", "utilities"]
 path = "/root/vscode/snarkVM"
