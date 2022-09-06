@@ -46,7 +46,7 @@ fn main1(){
     type Testnet3BlockHash = <Testnet3 as Network>::BlockHash;
     
     let id_map: DataMap<u32, Testnet3BlockHash>;
-    id_map = rocksdb::RocksDB::open_map(Testnet3::ID, DataID::BlockIDMap).unwrap();
+    id_map = rocksdb::RocksDB::open_map(Testnet3::ID, None, DataID::BlockIDMap).unwrap();
     let key_iter = id_map.keys();
     let height_max = key_iter.max_by_key(|x| **x).unwrap();
     let height_max = *height_max;
