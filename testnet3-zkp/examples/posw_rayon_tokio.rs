@@ -62,7 +62,7 @@ async fn main() {
     let prover = Arc::new(Prover {
         terminator: Default::default(), //Arc::new(AtomicBool::new(false)),
         total_proofs: Default::default(),
-        coinbase_proving_key: posw::getCoinbaseProvingKey(),
+        coinbase_proving_key: posw::get_coinbase_proving_key(),
         #[cfg(feature = "cuda")]
         cuda: cli.cuda,
         #[cfg(feature = "cuda")]
@@ -71,15 +71,15 @@ async fn main() {
 
     let thread_pools = prover.get_thread_pools();
     prover.statistic().await;
-    prover.mine_with_terminator(thread_pools).await;
+    prover.new_work(thread_pools).await;
 }
 
 impl Prover {
     fn get_thread_pools(&self) -> Vec<Arc<ThreadPool>> {
-        self.get_thread_pools_cpu()
+        self.get_thread_pools_bycpumode()
     }
 
-    fn get_thread_pools_cpu(&self) -> Vec<Arc<ThreadPool>> {
+    fn get_thread_pools_bycpumode(&self) -> Vec<Arc<ThreadPool>> {
         let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
 
         let available_threads = num_cpus::get() as u16;
@@ -115,7 +115,7 @@ impl Prover {
         thread_pools
     }
 
-    async fn mine_with_terminator(&self, thread_pools: Vec<Arc<ThreadPool>>) {
+    async fn new_work(&self, thread_pools: Vec<Arc<ThreadPool>>) {
         let mut joins = Vec::new();
         let coinbase_proving_key = self.coinbase_proving_key.clone();
         for tp in thread_pools.iter() {
@@ -127,7 +127,6 @@ impl Prover {
                 // joins.push(task::spawn(async move {
                 while !terminator.load(Ordering::SeqCst) {
                     let total_proofs = total_proofs.clone();
-                    // let terminator = terminator.clone();
                     let coinbase_proving_key = coinbase_proving_key.clone();
                     tp.install(|| {
                         time_spend("", || {
