@@ -34,28 +34,38 @@ tracing = { version = "0.1.35"  }
 tracing-subscriber = { version = "0.3.15" }
 
 [dependencies.snarkvm]
-path = "../../snarkVM-testnet2"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "3887cbbe7" # testnet2 最后一次提交6月30日
+# rev = "5a681812a" # 6月14日
+# rev = "5f8d31956" # # 2月12日 version="0.8.0"
 
 [dependencies.snarkvm-algorithms]
-path = "../../snarkVM-testnet2/algorithms"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "3887cbbe7"
 
 [dependencies.snarkvm-curves]
-path = "../../snarkVM-testnet2/curves"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "3887cbbe7"
 
 [dependencies.snarkvm-fields]
-path = "../../snarkVM-testnet2/fields"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "3887cbbe7"
 
 [dependencies.snarkvm-r1cs]
-path = "../../snarkVM-testnet2/r1cs"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "3887cbbe7"
 
 [dependencies.snarkvm-utilities]
-path = "../../snarkVM-testnet2/utilities"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "3887cbbe7"
 
 [dependencies.snarkvm-marlin]
-path = "../../snarkVM-testnet2/marlin"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "3887cbbe7"
 
 [dependencies.snarkvm-polycommit]
-path = "../../snarkVM-testnet2/polycommit"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "3887cbbe7"
 
 [dev-dependencies]
 criterion = {version = "0.3.5"}
