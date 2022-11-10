@@ -1,9 +1,9 @@
-#![allow(dead_code)]
+#![allow(clippy::single_element_loop)]
 
-use rand::prelude::*;
-use rand::thread_rng;
 use snarkvm::console::{account::*, network::Testnet3};
-use snarkvm::prelude::{CoinbaseProvingKey, CoinbasePuzzle, EpochChallenge, PuzzleConfig};
+use snarkvm::synthesizer::{CoinbasePuzzle, EpochChallenge, PuzzleConfig};
+
+use rand::{self, thread_rng, CryptoRng, RngCore};
 
 type CoinbasePuzzleInst = CoinbasePuzzle<Testnet3>;
 
@@ -15,10 +15,8 @@ fn sample_inputs(
     let (address, nonce) = sample_address_and_nonce(rng);
     (epoch_challenge, address, nonce)
 }
-fn sample_epoch_challenge(
-    degree: u32,
-    rng: &mut (impl CryptoRng + RngCore),
-) -> EpochChallenge<Testnet3> {
+
+fn sample_epoch_challenge(degree: u32, rng: &mut (impl CryptoRng + RngCore)) -> EpochChallenge<Testnet3> {
     EpochChallenge::new(rng.next_u32(), Default::default(), degree).unwrap()
 }
 
@@ -29,27 +27,41 @@ fn sample_address_and_nonce(rng: &mut (impl CryptoRng + RngCore)) -> (Address<Te
     (address, nonce)
 }
 
-pub fn get_coinbase_proving_key() -> CoinbaseProvingKey<Testnet3> {
-    let rng = &mut thread_rng();
 
+// fn coinbase_puzzle_prove(c: &mut Criterion) {
+//     let rng = &mut thread_rng();
+
+//     let max_degree = 1 << 15;
+//     let max_config = PuzzleConfig { degree: max_degree };
+//     let universal_srs = CoinbasePuzzle::<Testnet3>::setup(max_config).unwrap();
+
+//     for degree in [(1 << 13) - 1] {
+//         let config = PuzzleConfig { degree };
+//         let puzzle = CoinbasePuzzleInst::trim(&universal_srs, config).unwrap();
+
+//         c.bench_function(&format!("CoinbasePuzzle::Prove 2^{}", ((degree + 1) as f64).log2()), |b| {
+//             let (epoch_challenge, address, nonce) = sample_inputs(degree, rng);
+//             b.iter(|| puzzle.prove(&epoch_challenge, address, nonce).unwrap())
+//         });
+//     }
+// }
+
+// #[cfg(feature = "setup")]
+pub fn get_proof() {
+    let rng = &mut thread_rng();
     let max_degree = 1 << 15;
     let max_config = PuzzleConfig { degree: max_degree };
-    let universal_srs = CoinbasePuzzle::<Testnet3>::setup(max_config, rng).unwrap();
+    let universal_srs = CoinbasePuzzle::<Testnet3>::setup(max_config).unwrap();
 
     let degree = (1 << 13) - 1;
     let config = PuzzleConfig { degree };
-    let (pk, _) = CoinbasePuzzleInst::trim(&universal_srs, config).unwrap();
-    pk
-}
+    let puzzle = CoinbasePuzzleInst::trim(&universal_srs, config).unwrap();
 
-pub fn get_proof(pk: CoinbaseProvingKey<Testnet3>) {
-    let degree = (1 << 13) - 1;
-    let rng = &mut thread_rng();
     let (epoch_challenge, address, nonce) = sample_inputs(degree, rng);
-    CoinbasePuzzleInst::prove(&pk, &epoch_challenge, &address, nonce).unwrap();
+    puzzle.prove(&epoch_challenge, address, nonce).unwrap();
 }
-
 
 fn main() {
-    get_proof(get_coinbase_proving_key());
+    #[cfg(feature = "setup")]
+    get_proof();
 }

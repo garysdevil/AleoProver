@@ -27,12 +27,12 @@ version = "0.3"
 version = "1.0"
 
 [dependencies.snarkos]
-# git = "https://github.com/AleoHQ/snarkOS.git"
-# rev = "19181b1b5"
-path = "/root/vscode/snarkOS"
+git = "https://github.com/AleoHQ/snarkOS.git"
+rev = "19181b1b5"
+# path = "/root/vscode/snarkOS"
 
 [dependencies.snarkvm]
-# git = "https://github.com/AleoHQ/snarkVM.git"
-# rev = "b2cee23"
-# features = ["circuit", "console", "parallel", "utilities"]
-path = "/root/vscode/snarkVM"
+git = "https://github.com/AleoHQ/snarkVM.git"
+rev = "b2cee23"
+features = ["circuit", "console", "parallel", "utilities"]
+# path = "/root/vscode/snarkVM"

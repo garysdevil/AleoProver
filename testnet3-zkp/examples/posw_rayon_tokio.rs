@@ -42,7 +42,6 @@ struct Cli {
 pub struct Prover {
     terminator: Arc<AtomicBool>,
     total_proofs: Arc<AtomicU32>,
-    coinbase_proving_key: CoinbaseProvingKey<Testnet3>,
     #[cfg(feature = "cuda")]
     cuda: Option<Vec<i16>>,
     #[cfg(feature = "cuda")]
@@ -62,7 +61,6 @@ async fn main() {
     let prover = Arc::new(Prover {
         terminator: Default::default(), //Arc::new(AtomicBool::new(false)),
         total_proofs: Default::default(),
-        coinbase_proving_key: posw::get_coinbase_proving_key(),
         #[cfg(feature = "cuda")]
         cuda: cli.cuda,
         #[cfg(feature = "cuda")]
@@ -117,20 +115,19 @@ impl Prover {
 
     async fn new_work(&self, thread_pools: Vec<Arc<ThreadPool>>) {
         let mut joins = Vec::new();
-        let coinbase_proving_key = self.coinbase_proving_key.clone();
+        let mut pool_seq: u8 = 0;
         for tp in thread_pools.iter() {
+            pool_seq += 1;
             let total_proofs = self.total_proofs.clone();
             let terminator = self.terminator.clone();
             let tp = tp.clone();
-            let coinbase_proving_key = coinbase_proving_key.clone();
             joins.push(task::spawn_blocking(move || {
                 // joins.push(task::spawn(async move {
                 while !terminator.load(Ordering::SeqCst) {
                     let total_proofs = total_proofs.clone();
-                    let coinbase_proving_key = coinbase_proving_key.clone();
                     tp.install(|| {
-                        time_spend("", || {
-                            posw::get_proof(coinbase_proving_key);
+                        time_spend(pool_seq, || {
+                            posw::get_proof();
                             total_proofs.fetch_add(1, Ordering::SeqCst);
                         });
                     })
@@ -180,7 +177,7 @@ impl Prover {
     }
 }
 
-fn time_spend<F>(comment: &str, f: F)
+fn time_spend<F>(comment: u8, f: F)
 where
     F: FnOnce(),
 {
