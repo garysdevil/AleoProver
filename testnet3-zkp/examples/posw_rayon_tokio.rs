@@ -5,18 +5,26 @@ use std::time::Duration;
 
 use ansi_term::Colour::Cyan;
 use clap::Parser;
+use rand::{thread_rng, RngCore};
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use tokio::task;
 use tracing::{debug, info};
 use tracing_subscriber::layer::SubscriberExt;
 
 use snarkvm::console::{account::*, network::Testnet3};
-use snarkvm::prelude::CoinbaseProvingKey;
+use snarkvm::synthesizer::{CoinbasePuzzle, EpochChallenge};
+
 use zkp_testnet3::posw;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 struct Cli {
+    /// Enable debug logging
+    #[clap(short = 'd', long = "debug")]
+    debug: bool,
+    /// Output log to file
+    #[clap(short = 'o', long = "logpath")]
+    logpath: Option<String>,
     #[cfg(feature = "cuda")]
     #[clap(verbatim_doc_comment)]
     /// Indexes of GPUs to use (starts from 0)
@@ -33,20 +41,26 @@ struct Cli {
     /// The above example will result in 8 jobs in total
     #[clap(short = 'j', long = "cuda-jobs")]
     jobs: Option<u8>,
-
-    /// Enable debug logging
-    #[clap(short = 'd', long = "debug")]
-    debug: bool,
 }
 
 pub struct Prover {
     terminator: Arc<AtomicBool>,
     total_proofs: Arc<AtomicU32>,
+    address: Address<Testnet3>,
+    puzzle: CoinbasePuzzle<Testnet3>,
+    epoch_challenge: EpochChallenge<Testnet3>,
     #[cfg(feature = "cuda")]
     cuda: Option<Vec<i16>>,
     #[cfg(feature = "cuda")]
     jobs: u8,
 }
+
+// pub struct ProverEvent {
+//     // NewTarget(u64),
+//     // NewWork(u32, EpochChallenge<Testnet3>, Address<Testnet3>),
+//     // Result(bool, Option<String>),
+//     epoch_challenge: Arc<EpochChallenge<Testnet3>>,
+// }
 
 #[tokio::main]
 async fn main() {
@@ -56,11 +70,15 @@ async fn main() {
         dbg!("No GPUs specified. Use -g 0 if there is only one GPU.");
         std::process::exit(1);
     }
-    config_log(cli.debug);
-
+    config_log(cli.debug, cli.logpath);
+    
+    let (puzzle, epoch_challenge, address, _) = posw::get_sample_inputs();
     let prover = Arc::new(Prover {
         terminator: Default::default(), //Arc::new(AtomicBool::new(false)),
         total_proofs: Default::default(),
+        address,
+        puzzle,
+        epoch_challenge: epoch_challenge,
         #[cfg(feature = "cuda")]
         cuda: cli.cuda,
         #[cfg(feature = "cuda")]
@@ -115,19 +133,28 @@ impl Prover {
 
     async fn new_work(&self, thread_pools: Vec<Arc<ThreadPool>>) {
         let mut joins = Vec::new();
-        let mut pool_seq: u8 = 0;
+        let epoch_challenge = self.epoch_challenge.clone();
+        let address = self.address.clone();
+        let puzzle = self.puzzle.clone();
+
         for tp in thread_pools.iter() {
-            pool_seq += 1;
             let total_proofs = self.total_proofs.clone();
             let terminator = self.terminator.clone();
             let tp = tp.clone();
+            let epoch_challenge = epoch_challenge.clone();
+            let address = address.clone();
+            let puzzle = puzzle.clone();
             joins.push(task::spawn_blocking(move || {
                 // joins.push(task::spawn(async move {
                 while !terminator.load(Ordering::SeqCst) {
                     let total_proofs = total_proofs.clone();
+                    let epoch_challenge = epoch_challenge.clone();
+                    let address = address.clone();
+                    let puzzle = puzzle.clone();
                     tp.install(|| {
-                        time_spend(pool_seq, || {
-                            posw::get_proof();
+                        debug_time_spend("", || {
+                            let nonce = thread_rng().next_u64();
+                            posw::get_proof(puzzle, epoch_challenge, address, nonce);
                             total_proofs.fetch_add(1, Ordering::SeqCst);
                         });
                     })
@@ -177,7 +204,7 @@ impl Prover {
     }
 }
 
-fn time_spend<F>(comment: u8, f: F)
+fn debug_time_spend<F>(comment: &str, f: F)
 where
     F: FnOnce(),
 {
@@ -187,7 +214,7 @@ where
     debug!("{}. Total time elapsed  {:?}", comment, duration);
 }
 
-fn config_log(debug: bool) {
+fn config_log(debug: bool, file_path: Option<String>) {
     let tracing_level = if debug {
         tracing::Level::DEBUG
     } else {
@@ -198,9 +225,7 @@ fn config_log(debug: bool) {
         .with_max_level(tracing_level)
         .finish();
 
-    let log_file: Option<String>;
-    log_file = None; //Some(String::from("./log.log"));
-    if let Some(file_path) = log_file {
+    if let Some(file_path) = file_path {
         let file = std::fs::File::create(file_path).unwrap();
         let file = tracing_subscriber::fmt::layer()
             .with_writer(file)

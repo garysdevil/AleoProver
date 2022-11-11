@@ -27,27 +27,7 @@ fn sample_address_and_nonce(rng: &mut (impl CryptoRng + RngCore)) -> (Address<Te
     (address, nonce)
 }
 
-
-// fn coinbase_puzzle_prove(c: &mut Criterion) {
-//     let rng = &mut thread_rng();
-
-//     let max_degree = 1 << 15;
-//     let max_config = PuzzleConfig { degree: max_degree };
-//     let universal_srs = CoinbasePuzzle::<Testnet3>::setup(max_config).unwrap();
-
-//     for degree in [(1 << 13) - 1] {
-//         let config = PuzzleConfig { degree };
-//         let puzzle = CoinbasePuzzleInst::trim(&universal_srs, config).unwrap();
-
-//         c.bench_function(&format!("CoinbasePuzzle::Prove 2^{}", ((degree + 1) as f64).log2()), |b| {
-//             let (epoch_challenge, address, nonce) = sample_inputs(degree, rng);
-//             b.iter(|| puzzle.prove(&epoch_challenge, address, nonce).unwrap())
-//         });
-//     }
-// }
-
-// #[cfg(feature = "setup")]
-pub fn get_proof() {
+pub fn get_sample_inputs() -> ( CoinbasePuzzle<Testnet3>, EpochChallenge<Testnet3>, Address<Testnet3>, u64){
     let rng = &mut thread_rng();
     let max_degree = 1 << 15;
     let max_config = PuzzleConfig { degree: max_degree };
@@ -58,10 +38,25 @@ pub fn get_proof() {
     let puzzle = CoinbasePuzzleInst::trim(&universal_srs, config).unwrap();
 
     let (epoch_challenge, address, nonce) = sample_inputs(degree, rng);
+
+    (puzzle, epoch_challenge, address, nonce)
+}
+
+pub fn get_proof(puzzle: CoinbasePuzzle<Testnet3>, epoch_challenge: EpochChallenge<Testnet3>, address: Address<Testnet3>, nonce: u64) {
+
     puzzle.prove(&epoch_challenge, address, nonce).unwrap();
 }
 
-fn main() {
-    #[cfg(feature = "setup")]
-    get_proof();
+pub fn main() {
+    let start = std::time::Instant::now();
+
+    let (puzzle, epoch_challenge, address, nonce) = get_sample_inputs();
+
+    let duration = start.elapsed();
+    println!("{}. Total time elapsed  {:?}", "1. ", duration);
+
+    get_proof(puzzle, epoch_challenge, address, nonce);
+
+    let duration = start.elapsed();
+    println!("{}. Total time elapsed  {:?}", "2. ", duration);
 }
