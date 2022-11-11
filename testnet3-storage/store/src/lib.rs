@@ -14,10 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the snarkOS library. If not, see <https://www.gnu.org/licenses/>.
 
+#![forbid(unsafe_code)]
+
+#[macro_use]
+extern crate tracing;
+
 pub mod rocksdb;
 
 mod block;
 pub use block::*;
+
+mod consensus;
+pub use consensus::*;
 
 mod program;
 pub use program::*;
@@ -32,11 +40,15 @@ pub use transition::*;
 #[repr(u16)]
 pub enum DataID {
     // Block
+    BlockStateRootMap,
+    BlockReverseStateRootMap,
     BlockIDMap,
     BlockReverseIDMap,
     BlockHeaderMap,
     BlockTransactionsMap,
     BlockReverseTransactionsMap,
+    BlockCoinbaseSolutionMap,
+    BlockCoinbasePuzzleCommitmentMap,
     BlockSignatureMap,
     // Deployment
     DeploymentIDMap,
@@ -45,11 +57,12 @@ pub enum DataID {
     DeploymentProgramMap,
     DeploymentVerifyingKeyMap,
     DeploymentCertificateMap,
-    DeploymentAdditionalFeeMap,
+    DeploymentFeeMap,
     // Execution
     ExecutionIDMap,
     ExecutionReverseIDMap,
-    ExecutionEditionMap,
+    ExecutionInclusionMap,
+    ExecutionFeeMap,
     // Input
     InputIDMap,
     InputReverseIDMap,

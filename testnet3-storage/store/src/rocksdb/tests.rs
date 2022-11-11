@@ -14,17 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the snarkOS library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::store::{
+use crate::{
     rocksdb::{DataMap, RocksDB},
     DataID,
 };
 use snarkvm::{
-    compiler::{Map, MapRead},
-    console::{
-        network::{Network, Testnet3},
-        types::Scalar,
-    },
-    utilities::{TestRng, Uniform},
+    console::{network::Testnet3, types::Scalar},
+    prelude::{Network, TestRng, Uniform},
+    synthesizer::store::helpers::{Map, MapRead},
 };
 
 use serial_test::serial;
@@ -36,12 +33,9 @@ pub(crate) fn temp_dir() -> std::path::PathBuf {
     tempfile::tempdir().expect("Failed to open temporary directory").into_path()
 }
 
-pub(crate) fn temp_file() -> std::path::PathBuf {
-    tempfile::NamedTempFile::new()
-        .expect("Failed to open temporary file")
-        .path()
-        .to_owned()
-}
+// pub(crate) fn temp_file() -> std::path::PathBuf {
+//     tempfile::NamedTempFile::new().expect("Failed to open temporary file").path().to_owned()
+// }
 
 #[test]
 #[serial]
@@ -52,7 +46,8 @@ fn test_open() {
 #[test]
 #[serial]
 fn test_open_map() {
-    let _map = RocksDB::open_map_testing::<u32, String>(temp_dir(), None, DataID::Test).expect("Failed to open data map");
+    let _map =
+        RocksDB::open_map_testing::<u32, String>(temp_dir(), None, DataID::Test).expect("Failed to open data map");
 }
 
 #[test]
@@ -71,10 +66,7 @@ fn test_insert_and_get() {
     let map = RocksDB::open_map_testing(temp_dir(), None, DataID::Test).expect("Failed to open data map");
 
     map.insert(123456789, "123456789".to_string()).expect("Failed to insert");
-    assert_eq!(
-        Some("123456789".to_string()),
-        map.get(&123456789).expect("Failed to get").map(|v| v.to_string())
-    );
+    assert_eq!(Some("123456789".to_string()), map.get(&123456789).expect("Failed to get").map(|v| v.to_string()));
 
     assert_eq!(None, map.get(&000000000).expect("Failed to get"));
 }
@@ -85,10 +77,7 @@ fn test_insert_and_remove() {
     let map = RocksDB::open_map_testing(temp_dir(), None, DataID::Test).expect("Failed to open data map");
 
     map.insert(123456789, "123456789".to_string()).expect("Failed to insert");
-    assert_eq!(
-        map.get(&123456789).expect("Failed to get").map(|v| v.to_string()),
-        Some("123456789".to_string())
-    );
+    assert_eq!(map.get(&123456789).expect("Failed to get").map(|v| v.to_string()), Some("123456789".to_string()));
 
     map.remove(&123456789).expect("Failed to remove");
     assert!(map.get(&123456789).expect("Failed to get").is_none());
@@ -102,10 +91,7 @@ fn test_insert_and_iter() {
     map.insert(123456789, "123456789".to_string()).expect("Failed to insert");
 
     let mut iter = map.iter();
-    assert_eq!(
-        Some((123456789, "123456789".to_string())),
-        iter.next().map(|(k, v)| (*k, v.to_string()))
-    );
+    assert_eq!(Some((123456789, "123456789".to_string())), iter.next().map(|(k, v)| (*k, v.to_string())));
     assert_eq!(None, iter.next());
 }
 
@@ -200,5 +186,5 @@ fn test_scalar_mul() {
     }
 
     let elapsed = timer.elapsed().as_secs();
-    println!("{}", format!(" {ITERATIONS} Scalar Muls : {} s", elapsed));
+    println!(" {ITERATIONS} Scalar Muls : {elapsed} s");
 }

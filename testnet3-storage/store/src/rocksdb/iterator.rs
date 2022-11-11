@@ -28,14 +28,14 @@ pub struct Iter<
     _phantom: PhantomData<(K, V)>,
 }
 
-impl<'a, K: 'a + Debug + PartialEq + Eq + Hash + Serialize + DeserializeOwned, V: 'a + PartialEq + Eq + Serialize + DeserializeOwned>
-    Iter<'a, K, V>
+impl<
+    'a,
+    K: 'a + Debug + PartialEq + Eq + Hash + Serialize + DeserializeOwned,
+    V: 'a + PartialEq + Eq + Serialize + DeserializeOwned,
+> Iter<'a, K, V>
 {
     pub(super) fn new(db_iter: rocksdb::DBIterator<'a>) -> Self {
-        Self {
-            db_iter,
-            _phantom: PhantomData,
-        }
+        Self { db_iter, _phantom: PhantomData }
     }
 }
 
@@ -70,10 +70,7 @@ pub struct Keys<'a, K: 'a + Debug + PartialEq + Eq + Hash + Serialize + Deserial
 
 impl<'a, K: 'a + Debug + PartialEq + Eq + Hash + Serialize + DeserializeOwned> Keys<'a, K> {
     pub(crate) fn new(db_iter: rocksdb::DBIterator<'a>) -> Self {
-        Self {
-            db_iter,
-            _phantom: PhantomData,
-        }
+        Self { db_iter, _phantom: PhantomData }
     }
 }
 
@@ -102,10 +99,7 @@ pub struct Values<'a, V: 'a + PartialEq + Eq + Serialize + DeserializeOwned> {
 
 impl<'a, V: 'a + PartialEq + Eq + Serialize + DeserializeOwned> Values<'a, V> {
     pub(crate) fn new(db_iter: rocksdb::DBIterator<'a>) -> Self {
-        Self {
-            db_iter,
-            _phantom: PhantomData,
-        }
+        Self { db_iter, _phantom: PhantomData }
     }
 }
 

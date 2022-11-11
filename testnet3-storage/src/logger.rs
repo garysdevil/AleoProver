@@ -1,4 +1,3 @@
-
 pub fn initialize_logger(verbosity: u8) {
     match verbosity {
         0 => std::env::set_var("RUST_LOG", "info"),
