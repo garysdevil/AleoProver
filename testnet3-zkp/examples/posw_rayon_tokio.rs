@@ -25,6 +25,12 @@ struct Cli {
     /// Output log to file
     #[clap(short = 'o', long = "logpath")]
     logpath: Option<String>,
+    /// the number of thread pool
+    #[clap(default_value = "0", long = "pool_count")]
+    pub pool_count: u16,
+    ///the number of thread in one thread pool
+    #[clap(default_value = "0", long = "pool_thread_count")]
+    pub pool_thread_count: u16,
     #[cfg(feature = "cuda")]
     #[clap(verbatim_doc_comment)]
     /// Indexes of GPUs to use (starts from 0)
@@ -71,6 +77,9 @@ async fn main() {
         std::process::exit(1);
     }
     config_log(cli.debug, cli.logpath);
+    let pool_count = cli.pool_count;
+    let pool_thread_count = cli.pool_thread_count;
+    
     
     let (puzzle, epoch_challenge, address, _) = posw::get_sample_inputs();
     let prover = Arc::new(Prover {
@@ -85,43 +94,45 @@ async fn main() {
         jobs: cli.jobs.unwrap_or(1),
     });
 
-    let thread_pools = prover.get_thread_pools();
+    let thread_pools = prover.get_thread_pools(pool_count, pool_thread_count);
     prover.statistic().await;
     prover.new_work(thread_pools).await;
 }
 
 impl Prover {
-    fn get_thread_pools(&self) -> Vec<Arc<ThreadPool>> {
-        self.get_thread_pools_bycpumode()
+    fn get_thread_pools(&self, pool_count: u16, pool_thread_count: u16) -> Vec<Arc<ThreadPool>> {
+        self.get_thread_pools_bycpumode(pool_count, pool_thread_count)
     }
 
-    fn get_thread_pools_bycpumode(&self) -> Vec<Arc<ThreadPool>> {
+    fn get_thread_pools_bycpumode(&self, mut pool_count: u16, mut pool_thread_count: u16) -> Vec<Arc<ThreadPool>> {
         let mut thread_pools: Vec<Arc<ThreadPool>> = Vec::new();
 
-        let available_threads = num_cpus::get() as u16;
-        let pool_count;
-        let pool_threads;
-        if available_threads % 12 == 0 {
-            pool_count = available_threads / 12;
-            pool_threads = 12;
-        } else if available_threads % 10 == 0 {
-            pool_count = available_threads / 10;
-            pool_threads = 10;
-        } else if available_threads % 8 == 0 {
-            pool_count = available_threads / 8;
-            pool_threads = 8;
-        } else {
-            pool_count = available_threads / 6;
-            pool_threads = 6;
-        }
+        if pool_count == 0 || pool_thread_count == 0 {
+            let available_threads = num_cpus::get() as u16;
+
+            if available_threads % 12 == 0 {
+                pool_count = available_threads / 12;
+                pool_thread_count = 12;
+            } else if available_threads % 10 == 0 {
+                pool_count = available_threads / 10;
+                pool_thread_count = 10;
+            } else if available_threads % 8 == 0 {
+                pool_count = available_threads / 8;
+                pool_thread_count = 8;
+            } else {
+                pool_count = available_threads / 6;
+                pool_thread_count = 6;
+            }
+        };
+
         println!(
-            "Pools  pool_count={}, pool_threads={}",
-            pool_count, pool_threads
+            "Pools  pool_count={}, pool_thread_count={}",
+            pool_count, pool_thread_count
         );
         for index in 0..pool_count {
             let pool = ThreadPoolBuilder::new()
                 .stack_size(8 * 1024 * 1024)
-                .num_threads(pool_threads)
+                .num_threads(pool_thread_count.into())
                 .thread_name(move |idx| format!("ap-cpu-{}-{}", index, idx))
                 .build()
                 .unwrap();
@@ -154,7 +165,8 @@ impl Prover {
                     tp.install(|| {
                         debug_time_spend("", || {
                             let nonce = thread_rng().next_u64();
-                            posw::get_proof(puzzle, epoch_challenge, address, nonce);
+                            let mininum_proof_target: Option<u64> = Option::from(0);
+                            posw::get_proof(puzzle, epoch_challenge, address, nonce, mininum_proof_target);
                             total_proofs.fetch_add(1, Ordering::SeqCst);
                         });
                     })

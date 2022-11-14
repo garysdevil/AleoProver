@@ -42,9 +42,8 @@ pub fn get_sample_inputs() -> ( CoinbasePuzzle<Testnet3>, EpochChallenge<Testnet
     (puzzle, epoch_challenge, address, nonce)
 }
 
-pub fn get_proof(puzzle: CoinbasePuzzle<Testnet3>, epoch_challenge: EpochChallenge<Testnet3>, address: Address<Testnet3>, nonce: u64) {
-
-    puzzle.prove(&epoch_challenge, address, nonce).unwrap();
+pub fn get_proof(puzzle: CoinbasePuzzle<Testnet3>, epoch_challenge: EpochChallenge<Testnet3>, address: Address<Testnet3>, nonce: u64, mininum_proof_target: Option<u64>) {
+    puzzle.prove(&epoch_challenge, address, nonce, mininum_proof_target).unwrap();
 }
 
 pub fn main() {
@@ -55,7 +54,8 @@ pub fn main() {
     let duration = start.elapsed();
     println!("{}. Total time elapsed  {:?}", "1. ", duration);
 
-    get_proof(puzzle, epoch_challenge, address, nonce);
+    let mininum_proof_target: Option<u64> = Option::from(0);
+    get_proof(puzzle, epoch_challenge, address, nonce, mininum_proof_target);
 
     let duration = start.elapsed();
     println!("{}. Total time elapsed  {:?}", "2. ", duration);

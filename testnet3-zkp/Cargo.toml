@@ -37,12 +37,12 @@ criterion = {version = "0.3.5"}
 # path = "../snarkvm"
 #git = "https://github.com/AleoHQ/snarkVM.git"
 #rev = "3e7421b"
-version = "0.9.5"
+version = "0.9.6"
 features = ["circuit", "console", "parallel"]
 
 [dependencies.snarkvm-synthesizer]
-version = "0.9.5"
+version = "0.9.6"
 features =  ["setup"]
 
 [dependencies.snarkvm-algorithms]
-version = "0.9.5"
+version = "0.9.6"
