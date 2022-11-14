@@ -43,7 +43,10 @@ pub fn get_sample_inputs() -> ( CoinbasePuzzle<Testnet3>, EpochChallenge<Testnet
 }
 
 pub fn get_proof(puzzle: CoinbasePuzzle<Testnet3>, epoch_challenge: EpochChallenge<Testnet3>, address: Address<Testnet3>, nonce: u64, mininum_proof_target: Option<u64>) {
-    puzzle.prove(&epoch_challenge, address, nonce, mininum_proof_target).unwrap();
+    let result = puzzle.prove(&epoch_challenge, address, nonce, mininum_proof_target);
+    if let Ok(_) = result {
+        println!("mininum_proof_target={:?}, find a solution.", mininum_proof_target.unwrap_or(0));
+    }
 }
 
 pub fn main() {

@@ -165,7 +165,7 @@ impl Prover {
                     tp.install(|| {
                         debug_time_spend("", || {
                             let nonce = thread_rng().next_u64();
-                            let mininum_proof_target: Option<u64> = Option::from(0);
+                            let mininum_proof_target: Option<u64> = Option::from(10000);
                             posw::get_proof(puzzle, epoch_challenge, address, nonce, mininum_proof_target);
                             total_proofs.fetch_add(1, Ordering::SeqCst);
                         });
